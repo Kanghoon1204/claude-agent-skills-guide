@@ -83,12 +83,26 @@ const SectionPage: React.FC = () => {
               {sub.items.map((item: any, k: number) => (
                 <li key={k} className="flex gap-2 text-sm">
                   <span className="text-neutral-400 mt-1">&#x2022;</span>
-                  <div>
+                  <div className="flex-1">
                     {typeof item === 'string' ? (
                       <span className="text-neutral-700 dark:text-neutral-300">{item}</span>
                     ) : (
                       <>
-                        <span className="font-semibold">{item.label}</span>
+                        {item.url ? (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-orange-600 dark:text-orange-400 hover:underline inline-flex items-center gap-1"
+                          >
+                            {item.label}
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                            </svg>
+                          </a>
+                        ) : (
+                          <span className="font-semibold">{item.label}</span>
+                        )}
                         {item.desc && <span className="text-neutral-500 dark:text-neutral-400"> - {item.desc}</span>}
                       </>
                     )}
@@ -114,13 +128,27 @@ const SectionPage: React.FC = () => {
           {content.items.map((item: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm p-3 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700">
               <span className={`font-mono text-xs font-bold mt-0.5 ${colors.text} ${colors.darkText}`}>{String(i + 1).padStart(2, '0')}</span>
-              <div>
+              <div className="flex-1">
                 {typeof item === 'string' ? (
                   <span className="text-neutral-700 dark:text-neutral-300">{item}</span>
                 ) : (
                   <>
-                    <span className="font-semibold block">{item.label}</span>
-                    {item.desc && <span className="text-neutral-500 dark:text-neutral-400 text-xs">{item.desc}</span>}
+                    {item.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-orange-600 dark:text-orange-400 hover:underline inline-flex items-center gap-1 mb-1"
+                      >
+                        {item.label}
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <span className="font-semibold block">{item.label}</span>
+                    )}
+                    {item.desc && <span className="text-neutral-500 dark:text-neutral-400 text-xs block">{item.desc}</span>}
                   </>
                 )}
               </div>

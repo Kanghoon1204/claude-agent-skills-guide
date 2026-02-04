@@ -934,26 +934,20 @@ export const translations: {
 
     officialDocs: {
       title: '공식 문서',
-      body: '처음 스킬을 만든다면 Best Practices Guide로 시작하고, 필요에 따라 API 문서를 참조하세요.',
+      body: '처음 스킬을 만든다면 GitHub 리포지토리의 예제를 참고하고, 필요에 따라 API 문서를 참조하세요.',
       subsections: [
         {
           title: 'Anthropic 공식 리소스',
           items: [
-            { label: 'Best Practices Guide', desc: '스킬 작성을 위한 모범 사례 가이드' },
-            { label: 'Skills Documentation', desc: '공식 스킬 문서 (구조, 프론트매터 등)' },
-            { label: 'API Reference', desc: 'Claude API 레퍼런스 (Skills API 포함)' },
-            { label: 'MCP Documentation', desc: 'Model Context Protocol 사양 및 구현 가이드' },
+            { label: 'API Reference', desc: 'Claude API 레퍼런스', url: 'https://docs.anthropic.com/en/api' },
+            { label: 'MCP Documentation', desc: 'Model Context Protocol 사양 및 구현 가이드', url: 'https://modelcontextprotocol.io' },
+            { label: 'GitHub Skills Repository', desc: 'Anthropic 공식 스킬 리포지토리 (예제 및 문서)', url: 'https://github.com/anthropics/skills' },
           ],
         },
         {
-          title: '블로그 포스트',
+          title: '블로그 및 연구',
           items: [
-            { label: 'Introducing Agent Skills', desc: '에이전트 스킬 소개 공식 블로그' },
-            { label: 'Equipping Agents for the Real World', desc: '실세계 에이전트 장착 - 엔지니어링 블로그' },
-            { label: 'Skills Explained', desc: '스킬 개념 상세 설명' },
-            { label: 'How to Create Skills for Claude', desc: 'Claude 스킬 생성 방법 가이드' },
-            { label: 'Building Skills for Claude Code', desc: 'Claude Code용 스킬 구축 가이드' },
-            { label: 'Improving Frontend Design through Skills', desc: '스킬을 통한 프론트엔드 디자인 개선 사례' },
+            { label: 'Building Effective Agents', desc: '효과적인 에이전트 구축 - 연구 블로그', url: 'https://www.anthropic.com/research/building-effective-agents' },
           ],
         },
       ],
