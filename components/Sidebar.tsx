@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { NAV_DATA, CHAPTER_COLORS } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { NAV_DATA, CHAPTER_COLORS, pathToKey, findCategoryForSection } from '../constants';
 import { translations } from '../i18n/translations';
 import { ChevronIcon } from './icons/ChevronIcon';
 import { BookIcon } from './icons/BookIcon';
@@ -22,10 +22,25 @@ const CHAPTER_NUMBERS: Record<string, string> = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const location = useLocation();
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     introduction: true,
     fundamentals: true,
   });
+
+  // Auto-expand category containing current section
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith('/sections/')) {
+      const sectionKey = pathToKey(path);
+      const categoryKey = findCategoryForSection(sectionKey);
+      if (categoryKey) {
+        setExpandedCategories(prev =>
+          prev[categoryKey] ? prev : { ...prev, [categoryKey]: true }
+        );
+      }
+    }
+  }, [location.pathname]);
 
   const toggleCategory = (key: string) => {
     setExpandedCategories(prev => ({ ...prev, [key]: !prev[key] }));

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import TopBar from './TopBar';
 import Sidebar from './Sidebar';
 import SearchModal from './SearchModal';
+import ReadingProgress from './ReadingProgress';
 
 const Layout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,6 +25,7 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200">
+      <ReadingProgress />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0">
         <TopBar

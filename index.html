@@ -4,6 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Claude Agent Skills Guide</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23f97316'/%3E%3Cstop offset='100%25' style='stop-color:%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='20' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L54 35 L70 35 L57 45 L62 60 L50 50 L38 60 L43 45 L30 35 L46 35 Z' fill='white'/%3E%3Ccircle cx='50' cy='72' r='8' fill='white' opacity='0.9'/%3E%3C/svg%3E" />
+
+  <!-- Meta tags for SEO and social sharing -->
+  <meta name="description" content="Anthropic 공식 가이드 기반 Claude 에이전트 스킬 구축 완벽 가이드. 스킬 설계, 테스트, 배포까지 모든 것을 다룹니다." />
+  <meta name="keywords" content="Claude, Anthropic, AI Skills, MCP, Agent, 스킬 가이드" />
+  <meta name="author" content="Claude Agent Skills Guide" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Claude Agent Skills Guide" />
+  <meta property="og:description" content="Anthropic 공식 가이드 기반 Claude 에이전트 스킬 구축 완벽 가이드" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Claude Agent Skills Guide" />
+  <meta name="twitter:description" content="Anthropic 공식 가이드 기반 Claude 에이전트 스킬 구축 완벽 가이드" />
+
+  <!-- Theme color for mobile browsers -->
+  <meta name="theme-color" content="#f97316" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#171717" media="(prefers-color-scheme: dark)" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -22,6 +44,96 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #a1a1aa; border-radius: 3px; }
     .dark ::-webkit-scrollbar-thumb { background: #52525b; }
+    /* Mermaid diagram fix for dark mode */
+    .dark .mermaid-container .node rect,
+    .dark .mermaid-container .node circle,
+    .dark .mermaid-container .node ellipse,
+    .dark .mermaid-container .node polygon,
+    .dark .mermaid-container .node path,
+    .dark .mermaid-container .cluster rect {
+      fill: #262626 !important;
+      stroke: #525252 !important;
+    }
+    .dark .mermaid-container .nodeLabel,
+    .dark .mermaid-container .label,
+    .dark .mermaid-container .edgeLabel,
+    .dark .mermaid-container text,
+    .dark .mermaid-container span,
+    .dark .mermaid-container foreignObject span,
+    .dark .mermaid-container foreignObject div,
+    .dark .mermaid-container foreignObject p {
+      color: #f5f5f5 !important;
+      fill: #f5f5f5 !important;
+    }
+    .dark .mermaid-container .edgePath path {
+      stroke: #737373 !important;
+    }
+    .dark .mermaid-container .arrowMarkerPath {
+      fill: #737373 !important;
+    }
+
+    /* Print styles */
+    @media print {
+      /* Hide non-essential elements */
+      aside, nav, .no-print, button,
+      [class*="ReadingProgress"],
+      [class*="SearchModal"],
+      [class*="TopBar"] {
+        display: none !important;
+      }
+
+      /* Reset backgrounds */
+      body, main, div {
+        background: white !important;
+        color: black !important;
+      }
+
+      /* Full width content */
+      main {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 20px !important;
+        margin: 0 !important;
+      }
+
+      /* Ensure text is readable */
+      * {
+        color: black !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* Code blocks */
+      pre, code {
+        background: #f5f5f5 !important;
+        border: 1px solid #ddd !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+      }
+
+      /* Info boxes */
+      [class*="InfoBox"], [class*="rounded-xl"] {
+        border: 1px solid #ddd !important;
+        background: #fafafa !important;
+        page-break-inside: avoid;
+      }
+
+      /* Page breaks */
+      h1, h2 {
+        page-break-after: avoid;
+      }
+
+      /* Links */
+      a {
+        text-decoration: underline !important;
+      }
+
+      a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        color: #666 !important;
+      }
+    }
   </style>
   <script>
     (function() {

@@ -1297,6 +1297,427 @@ Based on detected conventions, generate:
 - Test edge cases (empty data, loading states, errors)
 - Use screen queries from @testing-library/react`,
     },
+    {
+      title: 'Pattern 6: Circuit Breaker',
+      titleKo: '패턴 6: Circuit Breaker (장애 격리)',
+      language: 'python',
+      code: `# scripts/circuit_breaker.py
+"""
+Circuit Breaker pattern implementation for fault tolerance.
+
+Prevents cascading failures by stopping requests to a failing service
+and allowing it time to recover. Three states: CLOSED, OPEN, HALF_OPEN.
+
+Usage in SKILL.md:
+---
+name: resilient-api-caller
+description: >
+  API caller with circuit breaker pattern for fault tolerance.
+  Prevents cascading failures when external services are down.
+tools:
+  - Bash
+  - Read
+  - Write
+---
+
+## Instructions
+Before making API calls, run:
+\`\`\`bash
+python scripts/circuit_breaker.py --check <service-name>
+\`\`\`
+
+If circuit is OPEN, skip the call and return cached data or error.
+"""
+
+import time
+import json
+from pathlib import Path
+from enum import IntEnum
+from typing import Callable, Any, Dict
+from datetime import datetime, timedelta
+
+
+class CircuitState(IntEnum):
+    """Circuit breaker states"""
+    CLOSED = 0      # Normal operation, requests allowed
+    OPEN = 1        # Failure threshold exceeded, requests blocked
+    HALF_OPEN = 2   # Testing if service recovered
+
+
+class CircuitBreakerOpenError(Exception):
+    """Raised when circuit is OPEN and requests are blocked"""
+    pass
+
+
+class CircuitBreaker:
+    """
+    Circuit Breaker for external service calls.
+
+    States:
+    - CLOSED: Normal operation. Failures increment counter.
+    - OPEN: Too many failures. All requests blocked for timeout period.
+    - HALF_OPEN: Testing recovery. Allow one request to check if service recovered.
+
+    Args:
+        service_name: Unique identifier for the service
+        failure_threshold: Number of failures before opening circuit (default: 5)
+        timeout: Seconds to wait before attempting recovery (default: 60)
+        state_file: Path to persist circuit state (default: /tmp/circuit_breaker_state.json)
+    """
+
+    def __init__(
+        self,
+        service_name: str,
+        failure_threshold: int = 5,
+        timeout: int = 60,
+        state_file: str = "/tmp/circuit_breaker_state.json"
+    ):
+        self.service_name = service_name
+        self.failure_threshold = failure_threshold
+        self.timeout = timeout
+        self.state_file = Path(state_file)
+
+        # Load persisted state or initialize
+        self._load_state()
+
+    def _load_state(self):
+        """Load circuit state from disk"""
+        if self.state_file.exists():
+            with open(self.state_file) as f:
+                data = json.load(f)
+                service_data = data.get(self.service_name, {})
+                self.state = CircuitState(service_data.get('state', CircuitState.CLOSED))
+                self.failure_count = service_data.get('failure_count', 0)
+                self.last_failure_time = service_data.get('last_failure_time')
+        else:
+            self.state = CircuitState.CLOSED
+            self.failure_count = 0
+            self.last_failure_time = None
+
+    def _save_state(self):
+        """Persist circuit state to disk"""
+        data = {}
+        if self.state_file.exists():
+            with open(self.state_file) as f:
+                data = json.load(f)
+
+        data[self.service_name] = {
+            'state': int(self.state),
+            'failure_count': self.failure_count,
+            'last_failure_time': self.last_failure_time
+        }
+
+        with open(self.state_file, 'w') as f:
+            json.dump(data, f, indent=2)
+
+    def call(self, func: Callable, *args, **kwargs) -> Any:
+        """
+        Execute function with circuit breaker protection.
+
+        Args:
+            func: Function to execute
+            *args, **kwargs: Arguments to pass to func
+
+        Returns:
+            Result of func(*args, **kwargs)
+
+        Raises:
+            CircuitBreakerOpenError: If circuit is OPEN
+            Exception: Any exception raised by func
+        """
+        if self.state == CircuitState.OPEN:
+            # Check if timeout has elapsed
+            if self.last_failure_time:
+                elapsed = time.time() - self.last_failure_time
+                if elapsed > self.timeout:
+                    print(f"⚡ Circuit HALF_OPEN: Testing recovery for {self.service_name}")
+                    self.state = CircuitState.HALF_OPEN
+                    self._save_state()
+                else:
+                    raise CircuitBreakerOpenError(
+                        f"Circuit OPEN for {self.service_name}. "
+                        f"Retry in {self.timeout - elapsed:.0f}s"
+                    )
+            else:
+                raise CircuitBreakerOpenError(f"Circuit OPEN for {self.service_name}")
+
+        try:
+            result = func(*args, **kwargs)
+            self.on_success()
+            return result
+        except Exception as e:
+            self.on_failure()
+            raise
+
+    def on_success(self):
+        """Handle successful call - reset failure count"""
+        if self.state == CircuitState.HALF_OPEN:
+            print(f"✅ Circuit CLOSED: {self.service_name} recovered")
+
+        self.state = CircuitState.CLOSED
+        self.failure_count = 0
+        self.last_failure_time = None
+        self._save_state()
+
+    def on_failure(self):
+        """Handle failed call - increment counter and potentially open circuit"""
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+
+        if self.failure_count >= self.failure_threshold:
+            print(f"🔴 Circuit OPEN: {self.service_name} failed {self.failure_count} times")
+            self.state = CircuitState.OPEN
+        else:
+            print(f"⚠️  Failure {self.failure_count}/{self.failure_threshold} for {self.service_name}")
+
+        self._save_state()
+
+    def get_state(self) -> Dict[str, Any]:
+        """Get current circuit state information"""
+        return {
+            'service': self.service_name,
+            'state': self.state.name,
+            'failure_count': self.failure_count,
+            'failure_threshold': self.failure_threshold,
+            'last_failure_time': self.last_failure_time,
+            'timeout': self.timeout
+        }
+
+
+# Example usage
+if __name__ == '__main__':
+    import requests
+    import sys
+
+    # Initialize circuit breaker for external API
+    cb = CircuitBreaker(
+        service_name='external-api',
+        failure_threshold=3,
+        timeout=30
+    )
+
+    def call_external_api():
+        """Simulated external API call"""
+        response = requests.get('https://api.example.com/data', timeout=5)
+        response.raise_for_status()
+        return response.json()
+
+    # Make protected call
+    try:
+        result = cb.call(call_external_api)
+        print(f"✅ API call succeeded: {result}")
+    except CircuitBreakerOpenError as e:
+        print(f"🔴 {e}")
+        print("💡 Using fallback: cached data or default response")
+        sys.exit(1)
+    except requests.RequestException as e:
+        print(f"⚠️  API call failed: {e}")
+        print(f"Circuit state: {cb.get_state()}")
+        sys.exit(1)`,
+    },
+    {
+      title: 'Pattern 7: Retry with Exponential Backoff',
+      titleKo: '패턴 7: 지수 백오프 재시도',
+      language: 'bash',
+      code: `#!/bin/bash
+# scripts/retry_with_backoff.sh
+#
+# Retry with Exponential Backoff pattern for transient failures.
+#
+# Retries a command with increasing delays between attempts.
+# Useful for network calls, rate-limited APIs, and flaky operations.
+#
+# Usage in SKILL.md:
+# ---
+# name: resilient-deployment
+# description: >
+#   Deploy with automatic retry on transient failures.
+#   Uses exponential backoff to handle rate limits and network issues.
+# tools:
+#   - Bash
+# ---
+#
+# ## Instructions
+# Wrap deployment commands with retry logic:
+# \`\`\`bash
+# bash scripts/retry_with_backoff.sh kubectl apply -f deployment.yaml
+# \`\`\`
+
+set -euo pipefail
+
+# Retry configuration
+MAX_ATTEMPTS="\${MAX_ATTEMPTS:-5}"
+INITIAL_TIMEOUT="\${INITIAL_TIMEOUT:-1}"
+MAX_TIMEOUT="\${MAX_TIMEOUT:-64}"
+BACKOFF_MULTIPLIER="\${BACKOFF_MULTIPLIER:-2}"
+
+# ANSI color codes
+RED='\\033[0;31m'
+YELLOW='\\033[1;33m'
+GREEN='\\033[0;32m'
+BLUE='\\033[0;34m'
+NC='\\033[0m' # No Color
+
+retry_with_backoff() {
+    local attempt=1
+    local timeout="$INITIAL_TIMEOUT"
+    local exit_code=0
+
+    echo -e "\${BLUE}🔄 Retry Configuration:\${NC}"
+    echo "   Max Attempts: $MAX_ATTEMPTS"
+    echo "   Initial Timeout: \${INITIAL_TIMEOUT}s"
+    echo "   Backoff Multiplier: \${BACKOFF_MULTIPLIER}x"
+    echo "   Command: $*"
+    echo ""
+
+    while [ $attempt -le "$MAX_ATTEMPTS" ]; do
+        echo -e "\${BLUE}[Attempt $attempt/$MAX_ATTEMPTS]\${NC} Executing: $*"
+
+        # Execute command and capture exit code
+        set +e
+        "$@"
+        exit_code=$?
+        set -e
+
+        # Success - exit immediately
+        if [ $exit_code -eq 0 ]; then
+            echo -e "\${GREEN}✅ Success on attempt $attempt\${NC}"
+            return 0
+        fi
+
+        # Failed - check if we should retry
+        if [ $attempt -eq "$MAX_ATTEMPTS" ]; then
+            echo -e "\${RED}❌ Failed after $MAX_ATTEMPTS attempts\${NC}"
+            return $exit_code
+        fi
+
+        # Calculate next timeout with exponential backoff
+        echo -e "\${YELLOW}⚠️  Attempt $attempt failed (exit code: $exit_code)\${NC}"
+        echo -e "\${YELLOW}⏳ Waiting \${timeout}s before retry...\${NC}"
+        sleep "$timeout"
+
+        # Increase timeout exponentially, but cap at MAX_TIMEOUT
+        timeout=$((timeout * BACKOFF_MULTIPLIER))
+        if [ $timeout -gt "$MAX_TIMEOUT" ]; then
+            timeout="$MAX_TIMEOUT"
+        fi
+
+        attempt=$((attempt + 1))
+        echo ""
+    done
+
+    return $exit_code
+}
+
+# Advanced: Retry with jitter to prevent thundering herd
+retry_with_jittered_backoff() {
+    local attempt=1
+    local timeout="$INITIAL_TIMEOUT"
+    local exit_code=0
+
+    while [ $attempt -le "$MAX_ATTEMPTS" ]; do
+        echo -e "\${BLUE}[Attempt $attempt/$MAX_ATTEMPTS]\${NC} Executing: $*"
+
+        set +e
+        "$@"
+        exit_code=$?
+        set -e
+
+        if [ $exit_code -eq 0 ]; then
+            echo -e "\${GREEN}✅ Success on attempt $attempt\${NC}"
+            return 0
+        fi
+
+        if [ $attempt -eq "$MAX_ATTEMPTS" ]; then
+            echo -e "\${RED}❌ Failed after $MAX_ATTEMPTS attempts\${NC}"
+            return $exit_code
+        fi
+
+        # Add random jitter (0-50% of timeout) to prevent thundering herd
+        local jitter=$((RANDOM % (timeout / 2)))
+        local actual_timeout=$((timeout + jitter))
+
+        echo -e "\${YELLOW}⚠️  Attempt $attempt failed (exit code: $exit_code)\${NC}"
+        echo -e "\${YELLOW}⏳ Waiting \${actual_timeout}s (\${timeout}s + \${jitter}s jitter)...\${NC}"
+        sleep "$actual_timeout"
+
+        timeout=$((timeout * BACKOFF_MULTIPLIER))
+        if [ $timeout -gt "$MAX_TIMEOUT" ]; then
+            timeout="$MAX_TIMEOUT"
+        fi
+
+        attempt=$((attempt + 1))
+        echo ""
+    done
+
+    return $exit_code
+}
+
+# Retry specific to HTTP requests (detects retryable status codes)
+retry_http_request() {
+    local url="$1"
+    local attempt=1
+    local timeout="$INITIAL_TIMEOUT"
+    local http_code=0
+
+    while [ $attempt -le "$MAX_ATTEMPTS" ]; do
+        echo -e "\${BLUE}[Attempt $attempt/$MAX_ATTEMPTS]\${NC} HTTP GET: $url"
+
+        # Make HTTP request and capture status code
+        http_code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+
+        # Success (2xx)
+        if [[ "$http_code" =~ ^2[0-9][0-9]$ ]]; then
+            echo -e "\${GREEN}✅ Success: HTTP $http_code\${NC}"
+            return 0
+        fi
+
+        # Client error (4xx) - don't retry except for 429 (rate limit)
+        if [[ "$http_code" =~ ^4[0-9][0-9]$ ]] && [ "$http_code" != "429" ]; then
+            echo -e "\${RED}❌ Client error: HTTP $http_code (not retrying)\${NC}"
+            return 1
+        fi
+
+        # Server error (5xx) or rate limit (429) - retry
+        if [ $attempt -eq "$MAX_ATTEMPTS" ]; then
+            echo -e "\${RED}❌ Failed after $MAX_ATTEMPTS attempts (HTTP $http_code)\${NC}"
+            return 1
+        fi
+
+        echo -e "\${YELLOW}⚠️  HTTP $http_code - retrying...\${NC}"
+        sleep "$timeout"
+
+        timeout=$((timeout * BACKOFF_MULTIPLIER))
+        if [ $timeout -gt "$MAX_TIMEOUT" ]; then
+            timeout="$MAX_TIMEOUT"
+        fi
+
+        attempt=$((attempt + 1))
+    done
+
+    return 1
+}
+
+# Main execution
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <command> [args...]"
+    echo ""
+    echo "Environment variables:"
+    echo "  MAX_ATTEMPTS        Number of retry attempts (default: 5)"
+    echo "  INITIAL_TIMEOUT     Initial delay in seconds (default: 1)"
+    echo "  MAX_TIMEOUT         Maximum delay in seconds (default: 64)"
+    echo "  BACKOFF_MULTIPLIER  Delay multiplier (default: 2)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 curl https://api.example.com/health"
+    echo "  MAX_ATTEMPTS=3 $0 kubectl apply -f deployment.yaml"
+    echo "  $0 npm publish"
+    exit 1
+fi
+
+# Execute with retry logic
+retry_with_backoff "$@"`,
+    },
   ],
 
   // ===========================================================================
@@ -1493,6 +1914,237 @@ stat ~/.claude/skills/my-skill/SKILL.md
 # Step 7: List all installed skills
 ls -la ~/.claude/skills/*/SKILL.md 2>/dev/null
 ls -la .claude/skills/*/SKILL.md 2>/dev/null`,
+    },
+    {
+      title: 'YAML Validation Script',
+      titleKo: 'YAML 검증 스크립트',
+      language: 'bash',
+      code: `#!/bin/bash
+# validate_yaml.sh - YAML 문법 검증 스크립트
+# Usage: ./validate_yaml.sh path/to/skill-folder
+
+SKILL_DIR="\${1:-.}"
+SKILL_MD="\$SKILL_DIR/SKILL.md"
+
+echo "=== YAML Validation for \$SKILL_MD ==="
+
+# Check if SKILL.md exists
+if [ ! -f "\$SKILL_MD" ]; then
+    echo "❌ ERROR: SKILL.md not found in \$SKILL_DIR"
+    exit 1
+fi
+
+# Check for frontmatter delimiters
+DELIMITER_COUNT=\$(grep -c "^---$" "\$SKILL_MD")
+if [ "\$DELIMITER_COUNT" -lt 2 ]; then
+    echo "❌ ERROR: Missing YAML frontmatter delimiters (need at least 2 '---' lines)"
+    exit 1
+fi
+
+# Extract YAML frontmatter
+YAML_CONTENT=\$(sed -n '/^---$/,/^---$/p' "\$SKILL_MD" | sed '1d;$d')
+
+# Check for tabs (common error)
+if echo "\$YAML_CONTENT" | grep -q $'\\t'; then
+    echo "❌ ERROR: Found TAB characters in YAML (use spaces instead)"
+    echo "Lines with tabs:"
+    echo "\$YAML_CONTENT" | grep -n $'\\t'
+    exit 1
+fi
+
+# Validate with Python (if available)
+if command -v python3 &> /dev/null; then
+    echo "\$YAML_CONTENT" | python3 -c "
+import sys
+import yaml
+try:
+    data = yaml.safe_load(sys.stdin.read())
+    if 'name' not in data:
+        print('❌ ERROR: Missing required field: name')
+        sys.exit(1)
+    if 'description' not in data:
+        print('❌ ERROR: Missing required field: description')
+        sys.exit(1)
+    print('✅ YAML syntax is valid')
+    print(f'   name: {data[\"name\"]}')
+    print(f'   description: {data[\"description\"][:50]}...')
+except yaml.YAMLError as e:
+    print(f'❌ YAML parsing error: {e}')
+    sys.exit(1)
+"
+else
+    echo "⚠️  Python not found, skipping detailed validation"
+fi
+
+echo "=== Validation complete ==="`,
+    },
+    {
+      title: 'Folder Structure Validation Script',
+      titleKo: '폴더 구조 검증 스크립트',
+      language: 'bash',
+      code: `#!/bin/bash
+# validate_structure.sh - 스킬 폴더 구조 검증
+# Usage: ./validate_structure.sh path/to/skill-folder
+
+SKILL_DIR="\${1:-.}"
+ERRORS=0
+
+echo "=== Skill Structure Validation ==="
+echo "Directory: \$SKILL_DIR"
+echo ""
+
+# 1. Check directory name (kebab-case)
+DIR_NAME=\$(basename "\$SKILL_DIR")
+if [[ ! "\$DIR_NAME" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+    echo "❌ Directory name must be kebab-case: \$DIR_NAME"
+    echo "   Example: my-awesome-skill"
+    ((ERRORS++))
+else
+    echo "✅ Directory name: \$DIR_NAME"
+fi
+
+# 2. Check SKILL.md exists (case-sensitive)
+if [ -f "\$SKILL_DIR/SKILL.md" ]; then
+    echo "✅ SKILL.md exists"
+else
+    # Check for common case errors
+    for f in skill.md Skill.md SKILL.MD; do
+        if [ -f "\$SKILL_DIR/\$f" ]; then
+            echo "❌ Found \$f but it must be exactly SKILL.md"
+            ((ERRORS++))
+            break
+        fi
+    done
+    if [ \$ERRORS -eq 0 ]; then
+        echo "❌ SKILL.md not found"
+        ((ERRORS++))
+    fi
+fi
+
+# 3. Check YAML name matches directory
+if [ -f "\$SKILL_DIR/SKILL.md" ]; then
+    YAML_NAME=\$(sed -n '/^---$/,/^---$/p' "\$SKILL_DIR/SKILL.md" | grep "^name:" | sed 's/name: *//')
+    if [ "\$YAML_NAME" = "\$DIR_NAME" ]; then
+        echo "✅ YAML name matches directory"
+    else
+        echo "❌ YAML name '\$YAML_NAME' doesn't match directory '\$DIR_NAME'"
+        ((ERRORS++))
+    fi
+fi
+
+# 4. Check for README.md (should NOT exist)
+if [ -f "\$SKILL_DIR/README.md" ]; then
+    echo "⚠️  WARNING: README.md found - may confuse Claude"
+fi
+
+# 5. List optional directories
+echo ""
+echo "Optional directories:"
+[ -d "\$SKILL_DIR/scripts" ] && echo "  ✓ scripts/"
+[ -d "\$SKILL_DIR/references" ] && echo "  ✓ references/"
+[ -d "\$SKILL_DIR/assets" ] && echo "  ✓ assets/"
+
+# Summary
+echo ""
+if [ \$ERRORS -eq 0 ]; then
+    echo "✅ All checks passed!"
+    exit 0
+else
+    echo "❌ Found \$ERRORS error(s)"
+    exit 1
+fi`,
+    },
+    {
+      title: 'Token Count Estimation Script',
+      titleKo: '토큰 수 추정 스크립트',
+      language: 'bash',
+      code: `#!/bin/bash
+# estimate_tokens.sh - 스킬 토큰 수 추정
+# Usage: ./estimate_tokens.sh path/to/skill-folder
+#
+# Note: Uses approximation of ~4 characters per token for English
+#       Actual token count may vary based on content
+
+SKILL_DIR="\${1:-.}"
+
+echo "=== Token Estimation for Skill ==="
+echo "Directory: \$SKILL_DIR"
+echo ""
+
+# Function to estimate tokens (chars / 4)
+estimate_tokens() {
+    local file="\$1"
+    local chars=\$(wc -c < "\$file" 2>/dev/null || echo 0)
+    echo \$((chars / 4))
+}
+
+# Function to format number with commas
+format_number() {
+    printf "%'d" "\$1"
+}
+
+TOTAL_TOKENS=0
+
+# 1. SKILL.md (Tier 1 + Tier 2)
+if [ -f "\$SKILL_DIR/SKILL.md" ]; then
+    SKILL_TOKENS=\$(estimate_tokens "\$SKILL_DIR/SKILL.md")
+    TOTAL_TOKENS=\$((TOTAL_TOKENS + SKILL_TOKENS))
+    echo "SKILL.md:           ~\$(format_number \$SKILL_TOKENS) tokens"
+
+    # Separate YAML (Tier 1) and Markdown (Tier 2)
+    YAML_CHARS=\$(sed -n '/^---$/,/^---$/p' "\$SKILL_DIR/SKILL.md" | wc -c)
+    YAML_TOKENS=\$((YAML_CHARS / 4))
+    MD_TOKENS=\$((SKILL_TOKENS - YAML_TOKENS))
+    echo "  ├── YAML (Tier 1): ~\$(format_number \$YAML_TOKENS) tokens (always loaded)"
+    echo "  └── Body (Tier 2): ~\$(format_number \$MD_TOKENS) tokens (loaded when active)"
+fi
+
+# 2. references/ (Tier 3)
+if [ -d "\$SKILL_DIR/references" ]; then
+    REF_TOKENS=0
+    echo ""
+    echo "references/ (Tier 3 - loaded on demand):"
+    for f in "\$SKILL_DIR/references"/*; do
+        if [ -f "\$f" ]; then
+            T=\$(estimate_tokens "\$f")
+            REF_TOKENS=\$((REF_TOKENS + T))
+            echo "  - \$(basename \$f): ~\$(format_number \$T) tokens"
+        fi
+    done
+    TOTAL_TOKENS=\$((TOTAL_TOKENS + REF_TOKENS))
+    echo "  Total references: ~\$(format_number \$REF_TOKENS) tokens"
+fi
+
+# 3. scripts/
+if [ -d "\$SKILL_DIR/scripts" ]; then
+    SCRIPT_TOKENS=0
+    echo ""
+    echo "scripts/ (loaded when executed):"
+    for f in "\$SKILL_DIR/scripts"/*; do
+        if [ -f "\$f" ]; then
+            T=\$(estimate_tokens "\$f")
+            SCRIPT_TOKENS=\$((SCRIPT_TOKENS + T))
+            echo "  - \$(basename \$f): ~\$(format_number \$T) tokens"
+        fi
+    done
+    TOTAL_TOKENS=\$((TOTAL_TOKENS + SCRIPT_TOKENS))
+fi
+
+# Summary
+echo ""
+echo "=================================="
+echo "Total estimated tokens: ~\$(format_number \$TOTAL_TOKENS)"
+echo ""
+
+# Recommendations
+if [ \$TOTAL_TOKENS -gt 10000 ]; then
+    echo "⚠️  WARNING: High token count may impact performance"
+    echo "   Consider moving details to references/"
+elif [ \$TOTAL_TOKENS -gt 5000 ]; then
+    echo "💡 TIP: Good size, but consider progressive disclosure"
+else
+    echo "✅ Token count is optimal"
+fi`,
     },
   ],
 
@@ -1726,6 +2378,109 @@ allowed_tools:
 # description: Uses API key from environment variable API_KEY`,
     },
     {
+      title: 'allowed_tools vs deny_tools Priority Rules',
+      titleKo: 'allowed_tools와 deny_tools 우선순위 규칙',
+      language: 'yaml',
+      code: `---
+name: priority-example
+description: Demonstrating allowed/deny priority
+
+tools:
+  - Bash
+  - Read
+
+# PRIORITY RULE: deny_tools ALWAYS takes precedence over allowed_tools
+#
+# Evaluation order:
+# 1. Check deny_tools first → if match, BLOCK
+# 2. Check allowed_tools → if match, ALLOW
+# 3. If no allowed_tools defined → ALLOW by default
+# 4. If allowed_tools defined but no match → BLOCK
+
+# Example: Allow all git commands EXCEPT force push
+allowed_tools:
+  - Bash(git *)           # Allow: git status, git commit, git push
+  - Bash(npm install *)   # Allow: npm install <package>
+  - Read(src/*)           # Allow: read any file in src/
+
+deny_tools:
+  - Bash(git push --force*)  # Block: even though git * is allowed
+  - Bash(git push -f *)      # Block: shorthand force push
+  - Bash(git reset --hard*)  # Block: destructive reset
+  - Read(src/*.env)          # Block: even though src/* is allowed
+---
+
+# EXAMPLE SCENARIOS:
+#
+# 1. User requests: "git status"
+#    → Check deny_tools: no match
+#    → Check allowed_tools: matches "Bash(git *)"
+#    → ALLOWED ✓
+#
+# 2. User requests: "git push --force origin main"
+#    → Check deny_tools: matches "Bash(git push --force*)"
+#    → BLOCKED ✗ (deny takes precedence)
+#
+# 3. User requests: "rm -rf /"
+#    → Check deny_tools: no match
+#    → Check allowed_tools: no match (only git/npm/Read allowed)
+#    → BLOCKED ✗ (not in whitelist)
+#
+# 4. User requests: "read src/config.ts"
+#    → Check deny_tools: no match
+#    → Check allowed_tools: matches "Read(src/*)"
+#    → ALLOWED ✓
+#
+# 5. User requests: "read src/.env"
+#    → Check deny_tools: matches "Read(src/*.env)"
+#    → BLOCKED ✗ (deny takes precedence)`,
+    },
+    {
+      title: 'compatibility Field Usage',
+      titleKo: 'compatibility 필드 사용법',
+      language: 'yaml',
+      code: `---
+name: advanced-skill
+description: Skill with compatibility requirements
+
+# OPTIONAL: Define environment compatibility (1-500 characters)
+# This field documents the required environment for the skill
+# Note: Currently informational only, not auto-validated
+
+compatibility: >
+  claude-code >= 1.0.0,
+  node >= 18.0.0,
+  mcp-server-github >= 0.5.0
+
+# Alternative: Single line format
+# compatibility: "claude-code >= 1.0.0, python >= 3.9"
+
+metadata:
+  version: 2.0.0
+  author: MyTeam
+  mcp-server: github
+---
+
+# Use Cases for compatibility field:
+#
+# 1. Claude Code version requirement
+#    compatibility: "claude-code >= 1.0.0"
+#
+# 2. MCP server dependency
+#    compatibility: "mcp-server: github >= 0.5.0, mcp-server: slack >= 1.0.0"
+#
+# 3. Runtime environment
+#    compatibility: "node >= 18, npm >= 9"
+#    compatibility: "python >= 3.9, pip >= 21.0"
+#
+# 4. Multiple constraints
+#    compatibility: >
+#      claude-code >= 1.0.0,
+#      mcp-server: github >= 0.5.0,
+#      node >= 18.0.0,
+#      git >= 2.30.0`,
+    },
+    {
       title: 'Complete YAML Reference Card',
       titleKo: '전체 YAML 참조 카드',
       language: 'yaml',
@@ -1758,13 +2513,26 @@ tools:                              # list of tool identifiers
 allowed_tools:                      # list of allowed patterns
   - ToolName(glob-pattern)          # Whitelist specific uses
 
-deny_tools:                         # list of denied patterns
+deny_tools:                         # list of denied patterns (higher priority)
   - ToolName(glob-pattern)          # Blacklist specific uses
 
 intercept:                          # list of confirmation rules
   - tool: ToolName                  # Which tool to intercept
     pattern: "regex-pattern"        # When to intercept
     message: "Confirmation prompt"  # What to ask the user
+
+compatibility: >                    # string, 1-500 chars (informational)
+  claude-code >= 1.0.0,
+  node >= 18.0.0
+
+metadata:
+  author: Your Name                 # string
+  version: 1.0.0                    # semver string
+  category: productivity            # enum: productivity, development, etc.
+  tags: [automation, workflow]      # list of strings (max 10)
+  mcp-server: github                # string
+  documentation: https://...        # URL
+  support: email@example.com        # email or URL
 ---`,
     },
   ],
@@ -2244,6 +3012,1408 @@ User: /mono-run build           # Build affected packages
 User: /mono-run lint --all      # Lint all packages
 User: /mono-run test @app/core  # Test specific package
 \`\`\``,
+    },
+    {
+      title: 'Production Example 1: Security Audit Skill',
+      titleKo: '프로덕션 예제 1: 보안 감사 스킬',
+      language: 'markdown',
+      code: `---
+name: security-audit
+description: >
+  OWASP Top 10 automated security validation and dependency vulnerability
+  scanning. Generates detailed reports in Markdown, JSON, and HTML formats.
+  Integrates with CI/CD pipelines for continuous security monitoring.
+tools:
+  - Bash
+  - Read
+  - Write
+  - Grep
+  - Glob
+deny_tools:
+  - Bash(rm -rf*)
+  - Bash(sudo*)
+  - Write(/etc/*)
+metadata:
+  version: "1.2.0"
+  category: security
+  license: MIT
+  tags: [security, owasp, audit, vulnerability-scan]
+---
+
+# Security Audit Skill
+
+Perform automated security audits based on OWASP Top 10 and dependency vulnerability scans.
+
+## When to Use
+- Before deploying to production
+- As part of CI/CD security gates
+- During security review processes
+- For compliance audits
+
+## Prerequisites
+- Python 3.8+ with bandit, safety installed
+- Node.js 16+ with npm audit
+- Ruby 2.7+ with bundle audit (optional)
+
+## Audit Process
+
+### Phase 1: Dependency Vulnerability Scan
+\`\`\`bash
+# Python dependencies
+safety check -r requirements.txt --json > safety-report.json
+
+# Node.js dependencies
+npm audit --json > npm-audit.json
+
+# Ruby dependencies (if present)
+bundle audit check --format json > bundle-audit.json
+\`\`\`
+
+### Phase 2: OWASP Top 10 Validation
+
+#### A01: Broken Access Control
+- Check for missing @require_auth decorators
+- Validate role-based access control (RBAC)
+- Scan for exposed admin endpoints
+
+#### A02: Cryptographic Failures
+- Detect hardcoded secrets (API keys, passwords)
+- Check for weak encryption algorithms (MD5, SHA1)
+- Validate TLS/SSL configuration
+
+#### A03: Injection
+- SQL Injection: Scan for raw SQL queries without parameterization
+- Command Injection: Check for shell command concatenation
+- XSS: Validate HTML escaping in templates
+
+#### A04: Insecure Design
+- Check for missing rate limiting
+- Validate input validation patterns
+- Review error message exposure
+
+#### A05: Security Misconfiguration
+- Check for debug=True in production
+- Validate CORS policies
+- Review security headers (CSP, X-Frame-Options)
+
+### Phase 3: Report Generation
+
+The skill generates three report formats:
+
+**Markdown Report** (human-readable)
+\`\`\`markdown
+# Security Audit Report
+Date: 2025-01-15
+Severity Breakdown:
+- Critical: 2
+- High: 5
+- Medium: 12
+- Low: 8
+
+## Critical Issues
+1. **SQL Injection in login.py:45**
+   - Raw SQL query without parameterization
+   - Recommendation: Use ORM or prepared statements
+
+2. **Hardcoded AWS Secret in config.py:12**
+   - AWS_SECRET_KEY exposed in source code
+   - Recommendation: Use environment variables
+\`\`\`
+
+**JSON Report** (machine-parseable)
+\`\`\`json
+{
+  "timestamp": "2025-01-15T10:30:00Z",
+  "summary": {
+    "critical": 2,
+    "high": 5,
+    "medium": 12,
+    "low": 8
+  },
+  "findings": [
+    {
+      "id": "SQL-001",
+      "severity": "critical",
+      "category": "A03-Injection",
+      "file": "login.py",
+      "line": 45,
+      "description": "SQL Injection vulnerability",
+      "recommendation": "Use parameterized queries"
+    }
+  ]
+}
+\`\`\`
+
+**HTML Report** (for dashboard integration)
+- Color-coded severity levels
+- Collapsible sections by category
+- Export to PDF button
+
+## CI/CD Integration
+
+### GitHub Actions
+\`\`\`yaml
+- name: Security Audit
+  run: |
+    claude-code execute security-audit
+    if [ \$(jq '.summary.critical' audit-report.json) -gt 0 ]; then
+      echo "Critical vulnerabilities found!"
+      exit 1
+    fi
+\`\`\`
+
+## Performance Notes
+- Typical scan time: 2-5 minutes for medium-sized projects
+- Parallel execution for faster scans
+- Incremental scans for changed files only`,
+    },
+    {
+      title: 'Production Example 2: E2E Testing Orchestrator',
+      titleKo: '프로덕션 예제 2: E2E 테스팅 오케스트레이터',
+      language: 'markdown',
+      code: `---
+name: e2e-test-orchestrator
+description: >
+  End-to-End testing automation with Playwright/Cypress. Captures screenshots,
+  videos, and traces on failure. Sends Slack notifications with test results
+  and failure diagnostics. Supports parallel execution across browsers.
+tools:
+  - Bash
+  - Read
+  - Write
+  - mcp: slack
+deny_tools:
+  - Bash(rm -rf test-results/*)
+metadata:
+  version: "2.1.0"
+  category: testing
+  license: MIT
+  tags: [e2e, playwright, cypress, testing, automation]
+---
+
+# E2E Testing Orchestrator
+
+Automate end-to-end testing with intelligent failure diagnostics and notifications.
+
+## When to Use
+- Before merging pull requests
+- As part of nightly test runs
+- After deployments to staging/production
+- For regression testing
+
+## Prerequisites
+- Playwright 1.40+ OR Cypress 13+
+- Slack MCP server configured (for notifications)
+- Chrome, Firefox, Safari installed
+
+## Test Execution Flow
+
+### Phase 1: Environment Setup
+\`\`\`javascript
+// scripts/e2e-orchestrator.js
+const { chromium, firefox, webkit } = require('playwright');
+
+const config = {
+  browsers: ['chromium', 'firefox', 'webkit'],
+  baseURL: process.env.TEST_URL || 'http://localhost:3000',
+  retries: 3,
+  timeout: 30000,
+  parallel: true,
+  video: 'on-failure',
+  screenshot: 'on-failure',
+  trace: 'on-failure'
+};
+\`\`\`
+
+### Phase 2: Test Discovery & Execution
+
+The orchestrator automatically discovers tests in \`tests/e2e/**/*.spec.{js,ts}\`:
+
+\`\`\`javascript
+async function runTests() {
+  const testFiles = await glob('tests/e2e/**/*.spec.{js,ts}');
+
+  const results = await Promise.allSettled(
+    config.browsers.map(browser =>
+      runTestsInBrowser(browser, testFiles)
+    )
+  );
+
+  return aggregateResults(results);
+}
+\`\`\`
+
+### Phase 3: Failure Diagnostics
+
+When a test fails, the orchestrator:
+
+1. **Captures Screenshot**
+   \`\`\`javascript
+   await page.screenshot({
+     path: \`failures/\${testName}-\${Date.now()}.png\`,
+     fullPage: true
+   });
+   \`\`\`
+
+2. **Records Video**
+   - Last 30 seconds before failure
+   - Saved to \`test-results/videos/\`
+
+3. **Collects Trace**
+   \`\`\`javascript
+   await context.tracing.start({ screenshots: true, snapshots: true });
+   // ... test execution
+   await context.tracing.stop({ path: 'trace.zip' });
+   \`\`\`
+
+4. **Extracts Console Logs**
+   \`\`\`javascript
+   page.on('console', msg => {
+     if (msg.type() === 'error') {
+       errors.push({
+         time: Date.now(),
+         text: msg.text()
+       });
+     }
+   });
+   \`\`\`
+
+### Phase 4: Retry Logic (Exponential Backoff)
+
+\`\`\`javascript
+async function retryTest(testFn, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await testFn();
+    } catch (error) {
+      if (attempt === maxRetries) throw error;
+
+      const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
+      console.log(\`Retry \${attempt}/\${maxRetries} in \${delay}ms\`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+}
+\`\`\`
+
+### Phase 5: Slack Notification
+
+\`\`\`javascript
+async function sendSlackNotification(results) {
+  const message = {
+    channel: '#qa-alerts',
+    blocks: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: results.failed > 0
+            ? ':x: *E2E Tests Failed*'
+            : ':white_check_mark: *E2E Tests Passed*'
+        }
+      },
+      {
+        type: 'section',
+        fields: [
+          { type: 'mrkdwn', text: \`*Total:* \${results.total}\` },
+          { type: 'mrkdwn', text: \`*Passed:* \${results.passed}\` },
+          { type: 'mrkdwn', text: \`*Failed:* \${results.failed}\` },
+          { type: 'mrkdwn', text: \`*Duration:* \${results.duration}s\` }
+        ]
+      }
+    ],
+    attachments: results.failures.map(f => ({
+      color: 'danger',
+      title: f.testName,
+      text: f.error,
+      image_url: uploadScreenshot(f.screenshot)
+    }))
+  };
+
+  await slackMCP.postMessage(message);
+}
+\`\`\`
+
+## Parallel Execution
+
+Run tests across 3 browsers in parallel:
+
+\`\`\`bash
+# Sequential (slow): 90 seconds
+playwright test
+
+# Parallel (fast): 35 seconds
+playwright test --workers=3
+\`\`\`
+
+## Performance Metrics
+- Average test execution: 2-4 seconds per test
+- Parallel speedup: 3x with 3 workers
+- Failure diagnosis overhead: <500ms`,
+    },
+    {
+      title: 'Production Example 3: Documentation Generator',
+      titleKo: '프로덕션 예제 3: 문서 생성기',
+      language: 'markdown',
+      code: `---
+name: doc-generator
+description: >
+  Automatically generates API documentation from OpenAPI specs and TypeScript
+  source code. Creates Mermaid diagrams for class hierarchies and sequences.
+  Generates code samples in cURL, Python, and TypeScript for all endpoints.
+tools:
+  - Bash
+  - Read
+  - Write
+  - Glob
+  - Grep
+metadata:
+  version: "1.5.0"
+  category: documentation
+  license: MIT
+  tags: [documentation, openapi, typescript, mermaid]
+---
+
+# Documentation Generator
+
+Generate comprehensive API documentation with diagrams and code samples.
+
+## When to Use
+- After adding/modifying API endpoints
+- Before releasing new API versions
+- For onboarding new developers
+- To maintain up-to-date documentation
+
+## Prerequisites
+- Python 3.8+ with openapi-spec-validator
+- Node.js 16+ with typedoc
+- OpenAPI 3.0 spec file (openapi.yaml)
+- TypeScript project with tsconfig.json
+
+## Generation Process
+
+### Phase 1: OpenAPI Spec Validation
+
+\`\`\`python
+# scripts/doc_generator.py
+from openapi_spec_validator import validate_spec
+import yaml
+
+def validate_openapi(spec_path):
+    with open(spec_path) as f:
+        spec = yaml.safe_load(f)
+
+    try:
+        validate_spec(spec)
+        return spec, None
+    except Exception as e:
+        return None, str(e)
+\`\`\`
+
+### Phase 2: Markdown Generation
+
+For each endpoint, generate:
+
+\`\`\`markdown
+## POST /api/v1/users
+
+Create a new user account.
+
+**Request Body**
+\`\`\`json
+{
+  "email": "user@example.com",
+  "name": "John Doe",
+  "role": "developer"
+}
+\`\`\`
+
+**Response (201 Created)**
+\`\`\`json
+{
+  "id": "usr_abc123",
+  "email": "user@example.com",
+  "created_at": "2025-01-15T10:30:00Z"
+}
+\`\`\`
+
+**Error Responses**
+- 400 Bad Request: Invalid email format
+- 409 Conflict: Email already exists
+- 422 Unprocessable Entity: Missing required fields
+
+**Code Samples**
+
+*cURL*
+\`\`\`bash
+curl -X POST https://api.example.com/v1/users \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer \${API_KEY}" \\
+  -d '{"email":"user@example.com","name":"John Doe"}'
+\`\`\`
+
+*Python*
+\`\`\`python
+import requests
+
+response = requests.post(
+    'https://api.example.com/v1/users',
+    headers={'Authorization': f'Bearer {api_key}'},
+    json={'email': 'user@example.com', 'name': 'John Doe'}
+)
+print(response.json())
+\`\`\`
+
+*TypeScript*
+\`\`\`typescript
+const response = await fetch('https://api.example.com/v1/users', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': \`Bearer \${apiKey}\`
+  },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    name: 'John Doe'
+  })
+});
+const data = await response.json();
+\`\`\`
+\`\`\`
+
+### Phase 3: Mermaid Diagram Generation
+
+**Class Diagram** (from TypeScript interfaces)
+\`\`\`mermaid
+classDiagram
+    class User {
+        +String id
+        +String email
+        +String name
+        +UserRole role
+        +Date created_at
+        +updateProfile()
+        +deleteAccount()
+    }
+
+    class UserRole {
+        <<enumeration>>
+        ADMIN
+        DEVELOPER
+        VIEWER
+    }
+
+    User --> UserRole
+\`\`\`
+
+**Sequence Diagram** (authentication flow)
+\`\`\`mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as API Gateway
+    participant Auth as Auth Service
+    participant DB as Database
+
+    C->>A: POST /api/v1/auth/login
+    A->>Auth: Validate credentials
+    Auth->>DB: Query user
+    DB-->>Auth: User data
+    Auth->>Auth: Generate JWT
+    Auth-->>A: Token + Refresh Token
+    A-->>C: 200 OK {access_token, refresh_token}
+\`\`\`
+
+### Phase 4: TypeScript API Extraction
+
+\`\`\`typescript
+// scripts/extract-types.ts
+import * as ts from 'typescript';
+
+function extractInterfaces(sourceFile: ts.SourceFile) {
+  const interfaces: InterfaceDoc[] = [];
+
+  ts.forEachChild(sourceFile, node => {
+    if (ts.isInterfaceDeclaration(node)) {
+      interfaces.push({
+        name: node.name.text,
+        members: node.members.map(m => ({
+          name: m.name?.getText(),
+          type: m.type?.getText(),
+          optional: !!m.questionToken,
+          comment: getJSDocComment(m)
+        }))
+      });
+    }
+  });
+
+  return interfaces;
+}
+\`\`\`
+
+### Phase 5: Version Management
+
+Docs are organized by API version:
+
+\`\`\`
+docs/
+  v1/
+    endpoints/
+      users.md
+      auth.md
+    diagrams/
+      architecture.md
+    changelog.md
+  v2/
+    endpoints/
+      users.md
+    changelog.md
+\`\`\`
+
+## Automation
+
+\`\`\`bash
+# Generate docs on every commit to main
+# .github/workflows/docs.yml
+- name: Generate API Docs
+  run: |
+    claude-code execute doc-generator
+    git add docs/
+    git commit -m "docs: auto-update API documentation"
+\`\`\`
+
+## Output Metrics
+- Documentation coverage: 100% of public endpoints
+- Diagram generation: <10 seconds
+- Code sample accuracy: Validated against live API`,
+    },
+    {
+      title: 'Production Example 4: API Gateway Configuration',
+      titleKo: '프로덕션 예제 4: API Gateway 설정',
+      language: 'python',
+      code: `# scripts/gateway_config.py
+"""
+API Gateway Configuration Skill
+Supports Kong, Nginx, AWS API Gateway
+Configures rate limiting, JWT auth, OpenTelemetry tracing
+"""
+import requests
+import json
+from typing import Dict, List
+
+class GatewayConfigurator:
+    def __init__(self, gateway_type: str, admin_url: str):
+        self.gateway_type = gateway_type
+        self.admin_url = admin_url
+
+    def configure_rate_limiting(self,
+                                service: str,
+                                limit: int,
+                                window: int = 60):
+        """
+        Configure rate limiting using Token Bucket algorithm
+
+        Args:
+            service: Service/route name
+            limit: Requests per window
+            window: Time window in seconds
+
+        Example:
+            configurator.configure_rate_limiting('api-users', 100, 60)
+            # Allows 100 requests per minute
+        """
+        if self.gateway_type == 'kong':
+            return self._kong_rate_limit(service, limit, window)
+        elif self.gateway_type == 'nginx':
+            return self._nginx_rate_limit(service, limit, window)
+        elif self.gateway_type == 'aws':
+            return self._aws_rate_limit(service, limit, window)
+
+    def _kong_rate_limit(self, service: str, limit: int, window: int):
+        config = {
+            "name": "rate-limiting",
+            "service": {"name": service},
+            "config": {
+                "minute": limit if window == 60 else None,
+                "second": limit if window == 1 else None,
+                "policy": "local",
+                "fault_tolerant": True,
+                "hide_client_headers": False
+            }
+        }
+
+        response = requests.post(
+            f"{self.admin_url}/plugins",
+            json=config,
+            headers={"Content-Type": "application/json"}
+        )
+
+        if response.status_code == 201:
+            print(f"✓ Rate limiting configured: {limit} req/{window}s")
+            return response.json()
+        else:
+            raise Exception(f"Failed: {response.text}")
+
+    def configure_jwt_auth(self,
+                          issuer: str,
+                          algorithm: str = 'RS256',
+                          public_key_path: str = None):
+        """
+        Configure JWT authentication
+
+        Args:
+            issuer: JWT issuer (e.g., 'auth.example.com')
+            algorithm: RS256 (RSA) or HS256 (HMAC)
+            public_key_path: Path to public key for RS256
+
+        Example JWT payload:
+        {
+          "iss": "auth.example.com",
+          "sub": "user_123",
+          "exp": 1735689000,
+          "roles": ["admin", "developer"]
+        }
+        """
+        if algorithm == 'RS256' and not public_key_path:
+            raise ValueError("RS256 requires public_key_path")
+
+        config = {
+            "name": "jwt",
+            "config": {
+                "uri_param_names": ["jwt"],
+                "cookie_names": ["jwt"],
+                "header_names": ["Authorization"],
+                "claims_to_verify": ["exp"],
+                "key_claim_name": "iss",
+                "secret_is_base64": False,
+                "algorithm": algorithm
+            }
+        }
+
+        if algorithm == 'RS256':
+            with open(public_key_path) as f:
+                config["config"]["rsa_public_key"] = f.read()
+
+        response = requests.post(
+            f"{self.admin_url}/plugins",
+            json=config
+        )
+
+        if response.status_code == 201:
+            print(f"✓ JWT auth configured: {algorithm}")
+            return response.json()
+        else:
+            raise Exception(f"Failed: {response.text}")
+
+    def configure_opentelemetry(self,
+                                endpoint: str,
+                                service_name: str):
+        """
+        Configure OpenTelemetry distributed tracing
+
+        Args:
+            endpoint: OTLP collector endpoint (e.g., 'http://jaeger:4317')
+            service_name: Service identifier for traces
+
+        Trace propagation:
+        - traceparent: 00-<trace-id>-<span-id>-01
+        - tracestate: vendor-specific data
+        """
+        config = {
+            "name": "opentelemetry",
+            "config": {
+                "endpoint": endpoint,
+                "resource_attributes": {
+                    "service.name": service_name
+                },
+                "header_type": "w3c",  # W3C Trace Context
+                "sampling_rate": 1.0,  # 100% sampling (adjust in production)
+                "connect_timeout": 1000,
+                "send_timeout": 5000
+            }
+        }
+
+        response = requests.post(
+            f"{self.admin_url}/plugins",
+            json=config
+        )
+
+        if response.status_code == 201:
+            print(f"✓ OpenTelemetry configured: {endpoint}")
+            return response.json()
+        else:
+            raise Exception(f"Failed: {response.text}")
+
+    def configure_cors(self,
+                      origins: List[str],
+                      methods: List[str] = None,
+                      headers: List[str] = None):
+        """
+        Configure CORS policy
+
+        Args:
+            origins: Allowed origins (e.g., ['https://app.example.com'])
+            methods: Allowed methods (default: ['GET', 'POST', 'PUT', 'DELETE'])
+            headers: Allowed headers (default: ['Content-Type', 'Authorization'])
+        """
+        methods = methods or ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        headers = headers or ['Content-Type', 'Authorization', 'X-Request-ID']
+
+        config = {
+            "name": "cors",
+            "config": {
+                "origins": origins,
+                "methods": methods,
+                "headers": headers,
+                "exposed_headers": ["X-Auth-Token"],
+                "credentials": True,
+                "max_age": 3600,
+                "preflight_continue": False
+            }
+        }
+
+        response = requests.post(
+            f"{self.admin_url}/plugins",
+            json=config
+        )
+
+        if response.status_code == 201:
+            print(f"✓ CORS configured: {len(origins)} origins")
+            return response.json()
+        else:
+            raise Exception(f"Failed: {response.text}")
+
+    def configure_circuit_breaker(self,
+                                  threshold: int = 5,
+                                  timeout: int = 60):
+        """
+        Configure Circuit Breaker pattern
+
+        States:
+        - CLOSED: Normal operation, requests pass through
+        - OPEN: Failures exceeded threshold, requests blocked
+        - HALF_OPEN: Test request allowed after timeout
+
+        Args:
+            threshold: Number of consecutive failures before opening
+            timeout: Seconds to wait before transitioning to HALF_OPEN
+        """
+        # This is typically handled by a custom plugin
+        # Example using Kong's request-termination for fallback
+        fallback_response = {
+            "error": "Service temporarily unavailable",
+            "retry_after": timeout,
+            "status": 503
+        }
+
+        print(f"✓ Circuit Breaker: {threshold} failures, {timeout}s timeout")
+        print(f"  Fallback response: {json.dumps(fallback_response, indent=2)}")
+
+# Usage Example
+if __name__ == "__main__":
+    configurator = GatewayConfigurator('kong', 'http://localhost:8001')
+
+    # Rate limiting: 100 requests per minute
+    configurator.configure_rate_limiting('user-api', 100, 60)
+
+    # JWT authentication with RS256
+    configurator.configure_jwt_auth(
+        issuer='auth.example.com',
+        algorithm='RS256',
+        public_key_path='keys/jwt-public.pem'
+    )
+
+    # OpenTelemetry tracing
+    configurator.configure_opentelemetry(
+        endpoint='http://jaeger:4317',
+        service_name='api-gateway'
+    )
+
+    # CORS for SPA
+    configurator.configure_cors(
+        origins=['https://app.example.com', 'https://admin.example.com']
+    )
+
+    # Circuit breaker
+    configurator.configure_circuit_breaker(threshold=5, timeout=60)`,
+    },
+    {
+      title: 'Production Example 5: Data Pipeline Builder',
+      titleKo: '프로덕션 예제 5: 데이터 파이프라인 빌더',
+      language: 'python',
+      code: `# scripts/pipeline_builder.py
+"""
+Data Pipeline Builder
+Defines ETL workflows, validates with Great Expectations,
+generates Airflow/Prefect DAGs
+"""
+from datetime import datetime, timedelta
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
+import great_expectations as gx
+import pandas as pd
+
+class PipelineBuilder:
+    def __init__(self, pipeline_name: str):
+        self.pipeline_name = pipeline_name
+        self.tasks = []
+
+    def add_extract_task(self, source: str, query: str = None):
+        """
+        Add data extraction task
+
+        Supported sources:
+        - PostgreSQL: 'postgres://user:pass@host:5432/db'
+        - MySQL: 'mysql://user:pass@host:3306/db'
+        - S3: 's3://bucket/path/to/data.csv'
+        - API: 'https://api.example.com/data'
+        """
+        def extract(**context):
+            if source.startswith('postgres://'):
+                import psycopg2
+                conn = psycopg2.connect(source)
+                df = pd.read_sql_query(query, conn)
+            elif source.startswith('s3://'):
+                df = pd.read_csv(source)
+            elif source.startswith('https://'):
+                import requests
+                response = requests.get(source)
+                df = pd.DataFrame(response.json())
+            else:
+                raise ValueError(f"Unsupported source: {source}")
+
+            # Store in XCom for next task
+            context['ti'].xcom_push(key='extracted_data', value=df.to_json())
+            return f"Extracted {len(df)} rows"
+
+        self.tasks.append({
+            'task_id': f'{self.pipeline_name}_extract',
+            'python_callable': extract,
+            'doc': f'Extract data from {source}'
+        })
+
+    def add_transform_task(self, transformations: list):
+        """
+        Add data transformation task
+
+        Example transformations:
+        [
+            {'type': 'filter', 'column': 'status', 'value': 'active'},
+            {'type': 'rename', 'old': 'user_id', 'new': 'id'},
+            {'type': 'aggregate', 'group_by': 'category', 'agg': 'sum'},
+            {'type': 'join', 'right': 'users', 'on': 'user_id'}
+        ]
+        """
+        def transform(**context):
+            ti = context['ti']
+            data_json = ti.xcom_pull(key='extracted_data', task_ids=f'{self.pipeline_name}_extract')
+            df = pd.read_json(data_json)
+
+            for t in transformations:
+                if t['type'] == 'filter':
+                    df = df[df[t['column']] == t['value']]
+                elif t['type'] == 'rename':
+                    df = df.rename(columns={t['old']: t['new']})
+                elif t['type'] == 'aggregate':
+                    df = df.groupby(t['group_by']).agg(t['agg'])
+                elif t['type'] == 'join':
+                    right_df = pd.read_csv(t['right'])
+                    df = df.merge(right_df, on=t['on'])
+
+            ti.xcom_push(key='transformed_data', value=df.to_json())
+            return f"Transformed to {len(df)} rows"
+
+        self.tasks.append({
+            'task_id': f'{self.pipeline_name}_transform',
+            'python_callable': transform,
+            'doc': f'Apply {len(transformations)} transformations'
+        })
+
+    def add_validation_task(self, expectations_suite: str):
+        """
+        Add Great Expectations validation
+
+        Example expectations suite:
+        {
+          "expectations": [
+            {
+              "expectation_type": "expect_column_values_to_not_be_null",
+              "kwargs": {"column": "id"}
+            },
+            {
+              "expectation_type": "expect_column_values_to_be_between",
+              "kwargs": {"column": "age", "min_value": 0, "max_value": 120}
+            },
+            {
+              "expectation_type": "expect_column_values_to_match_regex",
+              "kwargs": {"column": "email", "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"}
+            }
+          ]
+        }
+        """
+        def validate(**context):
+            ti = context['ti']
+            data_json = ti.xcom_pull(key='transformed_data', task_ids=f'{self.pipeline_name}_transform')
+            df = pd.read_json(data_json)
+
+            # Create Great Expectations context
+            ge_context = gx.get_context()
+            batch = ge_context.sources.pandas_default.read_dataframe(df)
+
+            # Load expectations suite
+            suite = ge_context.get_expectation_suite(expectations_suite)
+
+            # Validate
+            results = batch.validate(suite)
+
+            if not results['success']:
+                failed_expectations = [
+                    e for e in results['results']
+                    if not e['success']
+                ]
+                raise ValueError(f"Validation failed: {len(failed_expectations)} expectations")
+
+            print(f"✓ Validation passed: {results['statistics']['successful_expectations']} expectations")
+            ti.xcom_push(key='validated_data', value=df.to_json())
+
+        self.tasks.append({
+            'task_id': f'{self.pipeline_name}_validate',
+            'python_callable': validate,
+            'doc': f'Validate with Great Expectations suite: {expectations_suite}'
+        })
+
+    def add_load_task(self, destination: str):
+        """
+        Add data loading task
+
+        Supported destinations:
+        - PostgreSQL: 'postgres://user:pass@host:5432/db/table'
+        - S3: 's3://bucket/path/output.parquet'
+        - BigQuery: 'bigquery://project/dataset/table'
+        """
+        def load(**context):
+            ti = context['ti']
+            data_json = ti.xcom_pull(key='validated_data', task_ids=f'{self.pipeline_name}_validate')
+            df = pd.read_json(data_json)
+
+            if destination.startswith('postgres://'):
+                from sqlalchemy import create_engine
+                engine = create_engine(destination.rsplit('/', 1)[0])
+                table_name = destination.rsplit('/', 1)[1]
+                df.to_sql(table_name, engine, if_exists='append', index=False)
+            elif destination.startswith('s3://'):
+                df.to_parquet(destination, engine='pyarrow')
+            elif destination.startswith('bigquery://'):
+                df.to_gbq(destination.replace('bigquery://', ''), if_exists='append')
+
+            return f"Loaded {len(df)} rows to {destination}"
+
+        self.tasks.append({
+            'task_id': f'{self.pipeline_name}_load',
+            'python_callable': load,
+            'doc': f'Load data to {destination}'
+        })
+
+    def generate_airflow_dag(self, schedule: str = '0 0 * * *'):
+        """
+        Generate Airflow DAG
+
+        Args:
+            schedule: Cron expression (default: daily at midnight)
+
+        Returns:
+            DAG object ready to be placed in dags/ folder
+        """
+        default_args = {
+            'owner': 'data-team',
+            'depends_on_past': False,
+            'email_on_failure': True,
+            'email_on_retry': False,
+            'email': ['data-alerts@example.com'],
+            'retries': 3,
+            'retry_delay': timedelta(minutes=5),
+            'retry_exponential_backoff': True,
+            'max_retry_delay': timedelta(minutes=30)
+        }
+
+        dag = DAG(
+            self.pipeline_name,
+            default_args=default_args,
+            description=f'ETL pipeline: {self.pipeline_name}',
+            schedule_interval=schedule,
+            start_date=datetime(2025, 1, 1),
+            catchup=False,
+            tags=['etl', 'auto-generated']
+        )
+
+        previous_task = None
+        for task_spec in self.tasks:
+            task = PythonOperator(
+                task_id=task_spec['task_id'],
+                python_callable=task_spec['python_callable'],
+                dag=dag,
+                doc_md=task_spec['doc']
+            )
+
+            if previous_task:
+                previous_task >> task  # Set dependency
+            previous_task = task
+
+        return dag
+
+# Usage Example
+if __name__ == "__main__":
+    builder = PipelineBuilder('user_analytics_pipeline')
+
+    # Extract
+    builder.add_extract_task(
+        source='postgres://user:pass@db:5432/prod',
+        query='SELECT * FROM users WHERE created_at > NOW() - INTERVAL \\'1 day\\''
+    )
+
+    # Transform
+    builder.add_transform_task([
+        {'type': 'filter', 'column': 'status', 'value': 'active'},
+        {'type': 'rename', 'old': 'user_id', 'new': 'id'},
+        {'type': 'aggregate', 'group_by': 'country', 'agg': 'count'}
+    ])
+
+    # Validate
+    builder.add_validation_task('user_analytics_suite')
+
+    # Load
+    builder.add_load_task('s3://analytics-data/users/daily.parquet')
+
+    # Generate DAG
+    dag = builder.generate_airflow_dag(schedule='0 2 * * *')  # Daily at 2 AM
+
+    print(f"Generated DAG with {len(builder.tasks)} tasks")`,
+    },
+    {
+      title: 'Production Example 6: Compliance Checker',
+      titleKo: '프로덕션 예제 6: 컴플라이언스 체커',
+      language: 'python',
+      code: `# scripts/compliance_checker.py
+"""
+Compliance Checker
+GDPR, CCPA validation and PII detection
+Generates audit reports in PDF and HTML
+"""
+import re
+import os
+from pathlib import Path
+from typing import List, Dict
+from dataclasses import dataclass
+from datetime import datetime
+
+@dataclass
+class ComplianceFinding:
+    severity: str  # 'critical', 'high', 'medium', 'low'
+    category: str
+    file_path: str
+    line_number: int
+    description: str
+    recommendation: str
+    regulation: str  # 'GDPR', 'CCPA', 'HIPAA'
+
+class ComplianceChecker:
+    def __init__(self, project_root: str):
+        self.project_root = Path(project_root)
+        self.findings: List[ComplianceFinding] = []
+
+        # PII detection patterns
+        self.pii_patterns = {
+            'email': r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
+            'ssn': r'\\b\\d{3}-\\d{2}-\\d{4}\\b',
+            'phone': r'\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b',
+            'credit_card': r'\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b',
+            'ip_address': r'\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b',
+        }
+
+    def scan_pii_in_code(self) -> int:
+        """
+        Scan source code, logs, and config files for PII
+
+        Returns:
+            Number of PII instances found
+        """
+        extensions = ['.py', '.js', '.ts', '.java', '.log', '.txt', '.env', '.yaml', '.json']
+        exclude_dirs = {'node_modules', '.git', 'venv', '__pycache__', 'build', 'dist'}
+
+        for file_path in self.project_root.rglob('*'):
+            if file_path.is_file() and file_path.suffix in extensions:
+                if any(ex in file_path.parts for ex in exclude_dirs):
+                    continue
+
+                self._scan_file_for_pii(file_path)
+
+        return len([f for f in self.findings if 'PII' in f.category])
+
+    def _scan_file_for_pii(self, file_path: Path):
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
+
+            for line_num, line in enumerate(lines, 1):
+                for pii_type, pattern in self.pii_patterns.items():
+                    matches = re.findall(pattern, line)
+                    if matches:
+                        self.findings.append(ComplianceFinding(
+                            severity='critical' if pii_type in ['ssn', 'credit_card'] else 'high',
+                            category=f'PII Exposure - {pii_type}',
+                            file_path=str(file_path.relative_to(self.project_root)),
+                            line_number=line_num,
+                            description=f'{pii_type.upper()} found in plaintext: {matches[0][:20]}...',
+                            recommendation='Remove hardcoded PII, use environment variables or secure vault',
+                            regulation='GDPR Art. 32, CCPA 1798.150'
+                        ))
+        except Exception as e:
+            print(f"Error scanning {file_path}: {e}")
+
+    def check_gdpr_compliance(self) -> Dict[str, bool]:
+        """
+        Check GDPR compliance requirements
+
+        Returns:
+            Dictionary of compliance checks and their status
+        """
+        checks = {
+            'consent_mechanism': False,
+            'data_portability': False,
+            'right_to_erasure': False,
+            'privacy_policy': False,
+            'data_breach_notification': False,
+            'dpo_contact': False  # Data Protection Officer
+        }
+
+        # Check for consent implementation
+        if self._file_contains_pattern('**/consent*.py', r'def (get|check)_consent'):
+            checks['consent_mechanism'] = True
+        else:
+            self.findings.append(ComplianceFinding(
+                severity='critical',
+                category='GDPR - Consent',
+                file_path='N/A',
+                line_number=0,
+                description='No consent mechanism implementation found',
+                recommendation='Implement explicit user consent for data processing (GDPR Art. 7)',
+                regulation='GDPR Art. 7'
+            ))
+
+        # Check for data portability (export feature)
+        if self._file_contains_pattern('**/*export*.py', r'def export_user_data'):
+            checks['data_portability'] = True
+        else:
+            self.findings.append(ComplianceFinding(
+                severity='high',
+                category='GDPR - Data Portability',
+                file_path='N/A',
+                line_number=0,
+                description='No data export functionality found',
+                recommendation='Implement user data export in machine-readable format (GDPR Art. 20)',
+                regulation='GDPR Art. 20'
+            ))
+
+        # Check for data deletion (right to be forgotten)
+        if self._file_contains_pattern('**/*delete*.py', r'def (delete|remove)_user_data'):
+            checks['right_to_erasure'] = True
+        else:
+            self.findings.append(ComplianceFinding(
+                severity='critical',
+                category='GDPR - Right to Erasure',
+                file_path='N/A',
+                line_number=0,
+                description='No user data deletion functionality found',
+                recommendation='Implement complete user data deletion (GDPR Art. 17)',
+                regulation='GDPR Art. 17'
+            ))
+
+        # Check for privacy policy
+        privacy_files = list(self.project_root.glob('**/privacy*.{md,html,txt}'))
+        if privacy_files:
+            checks['privacy_policy'] = True
+        else:
+            self.findings.append(ComplianceFinding(
+                severity='high',
+                category='GDPR - Transparency',
+                file_path='N/A',
+                line_number=0,
+                description='No privacy policy document found',
+                recommendation='Create privacy policy explaining data processing (GDPR Art. 13-14)',
+                regulation='GDPR Art. 13-14'
+            ))
+
+        return checks
+
+    def check_ccpa_compliance(self) -> Dict[str, bool]:
+        """
+        Check California Consumer Privacy Act compliance
+
+        Returns:
+            Dictionary of CCPA compliance checks
+        """
+        checks = {
+            'do_not_sell_option': False,
+            'data_disclosure': False,
+            'opt_out_mechanism': False,
+            'deletion_request': False
+        }
+
+        # Check for "Do Not Sell My Personal Information" link
+        if self._file_contains_pattern('**/*.html', r'do.?not.?sell', ignore_case=True):
+            checks['do_not_sell_option'] = True
+        else:
+            self.findings.append(ComplianceFinding(
+                severity='critical',
+                category='CCPA - Do Not Sell',
+                file_path='N/A',
+                line_number=0,
+                description='No "Do Not Sell" option found for California users',
+                recommendation='Add "Do Not Sell My Personal Information" link (CCPA 1798.135)',
+                regulation='CCPA 1798.135'
+            ))
+
+        # Check for data disclosure
+        if self._file_contains_pattern('**/privacy*.{md,html}', r'categories.{1,50}personal.{1,50}information', ignore_case=True):
+            checks['data_disclosure'] = True
+        else:
+            self.findings.append(ComplianceFinding(
+                severity='high',
+                category='CCPA - Disclosure',
+                file_path='N/A',
+                line_number=0,
+                description='Privacy policy does not disclose categories of personal information',
+                recommendation='List categories of collected personal information (CCPA 1798.100)',
+                regulation='CCPA 1798.100'
+            ))
+
+        return checks
+
+    def check_cookie_compliance(self) -> bool:
+        """
+        Check cookie consent banner implementation
+
+        Required elements:
+        - Cookie consent banner
+        - Cookie policy page
+        - Granular consent options (necessary, functional, analytics, advertising)
+        """
+        html_files = list(self.project_root.glob('**/*.html'))
+        has_cookie_banner = False
+
+        for file_path in html_files:
+            content = file_path.read_text(errors='ignore')
+            if re.search(r'cookie.?consent|cookie.?banner', content, re.IGNORECASE):
+                has_cookie_banner = True
+                break
+
+        if not has_cookie_banner:
+            self.findings.append(ComplianceFinding(
+                severity='medium',
+                category='Cookie Compliance',
+                file_path='N/A',
+                line_number=0,
+                description='No cookie consent banner implementation found',
+                recommendation='Implement cookie consent banner with granular options',
+                regulation='GDPR ePrivacy Directive'
+            ))
+
+        return has_cookie_banner
+
+    def _file_contains_pattern(self, glob_pattern: str, regex: str, ignore_case: bool = False) -> bool:
+        flags = re.IGNORECASE if ignore_case else 0
+        for file_path in self.project_root.glob(glob_pattern):
+            if file_path.is_file():
+                content = file_path.read_text(errors='ignore')
+                if re.search(regex, content, flags):
+                    return True
+        return False
+
+    def generate_report(self, format: str = 'markdown') -> str:
+        """
+        Generate compliance audit report
+
+        Args:
+            format: 'markdown', 'json', or 'html'
+
+        Returns:
+            Report content as string
+        """
+        summary = {
+            'critical': len([f for f in self.findings if f.severity == 'critical']),
+            'high': len([f for f in self.findings if f.severity == 'high']),
+            'medium': len([f for f in self.findings if f.severity == 'medium']),
+            'low': len([f for f in self.findings if f.severity == 'low'])
+        }
+
+        if format == 'markdown':
+            report = f"""# Compliance Audit Report
+
+**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+**Project**: {self.project_root}
+
+## Summary
+- Critical: {summary['critical']}
+- High: {summary['high']}
+- Medium: {summary['medium']}
+- Low: {summary['low']}
+
+## Findings
+
+"""
+            for finding in sorted(self.findings, key=lambda x: ('critical', 'high', 'medium', 'low').index(x.severity)):
+                report += f"""### {finding.severity.upper()}: {finding.category}
+**Regulation**: {finding.regulation}
+**File**: {finding.file_path}:{finding.line_number}
+**Description**: {finding.description}
+**Recommendation**: {finding.recommendation}
+
+"""
+            return report
+
+        elif format == 'json':
+            import json
+            return json.dumps({
+                'timestamp': datetime.now().isoformat(),
+                'summary': summary,
+                'findings': [
+                    {
+                        'severity': f.severity,
+                        'category': f.category,
+                        'file': f.file_path,
+                        'line': f.line_number,
+                        'description': f.description,
+                        'recommendation': f.recommendation,
+                        'regulation': f.regulation
+                    }
+                    for f in self.findings
+                ]
+            }, indent=2)
+
+# Usage Example
+if __name__ == "__main__":
+    checker = ComplianceChecker('/path/to/project')
+
+    print("Scanning for PII...")
+    pii_count = checker.scan_pii_in_code()
+    print(f"Found {pii_count} PII instances")
+
+    print("\\nChecking GDPR compliance...")
+    gdpr = checker.check_gdpr_compliance()
+    print(f"GDPR compliance: {sum(gdpr.values())}/{len(gdpr)} checks passed")
+
+    print("\\nChecking CCPA compliance...")
+    ccpa = checker.check_ccpa_compliance()
+    print(f"CCPA compliance: {sum(ccpa.values())}/{len(ccpa)} checks passed")
+
+    print("\\nChecking cookie compliance...")
+    cookies = checker.check_cookie_compliance()
+
+    # Generate report
+    report = checker.generate_report(format='markdown')
+    with open('compliance-report.md', 'w') as f:
+        f.write(report)
+    print("\\n✓ Report saved to compliance-report.md")`,
     },
   ],
 };

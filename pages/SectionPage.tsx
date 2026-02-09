@@ -3,9 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import { translations } from '../i18n/translations';
 import { NAV_DATA, CHAPTER_COLORS, pathToKey, findCategoryForSection, getAllSections } from '../constants';
 import { CODE_EXAMPLES } from '../constants/codeExamples';
+import { DIAGRAMS } from '../constants/diagrams';
 import CodeBlock from '../components/CodeBlock';
+import MermaidDiagram from '../components/MermaidDiagram';
 import InfoBox from '../components/InfoBox';
 import ComparisonTable from '../components/ComparisonTable';
+import Checklist from '../components/Checklist';
+import TableOfContents from '../components/TableOfContents';
 
 const SectionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,12 +19,23 @@ const SectionPage: React.FC = () => {
   const colors = categoryKey ? CHAPTER_COLORS[categoryKey] : CHAPTER_COLORS.introduction;
   const content = (translations.content as any)?.[sectionKey];
   const codeExamples = CODE_EXAMPLES[sectionKey] || [];
+  const diagrams = DIAGRAMS[sectionKey] || [];
 
   // Prev / Next navigation
   const allSections = getAllSections();
   const currentIdx = allSections.findIndex(s => s.key === sectionKey);
   const prevSection = currentIdx > 0 ? allSections[currentIdx - 1] : null;
   const nextSection = currentIdx < allSections.length - 1 ? allSections[currentIdx + 1] : null;
+
+  // Generate TOC items from subsections
+  const tocItems = React.useMemo(() => {
+    if (!content?.subsections) return [];
+    return content.subsections.map((sub: any, i: number) => ({
+      id: `section-${i}`,
+      title: sub.title,
+      level: 1,
+    }));
+  }, [content]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -67,10 +82,18 @@ const SectionPage: React.FC = () => {
         </div>
       )}
 
+      {/* Table of Contents - shows on all screens, component handles responsive */}
+      {tocItems.length >= 3 && (
+        <TableOfContents items={tocItems} />
+      )}
+
       {/* Subsections */}
       {content.subsections && content.subsections.map((sub: any, i: number) => (
         <div key={i} className="mb-8">
-          <h2 className="text-xl font-bold mb-3 mt-8 pb-2 border-b border-neutral-200 dark:border-neutral-700">
+          <h2
+            id={`section-${i}`}
+            className="text-xl font-bold mb-3 mt-8 pb-2 border-b border-neutral-200 dark:border-neutral-700 scroll-mt-20"
+          >
             {sub.title}
           </h2>
           {sub.body && sub.body.split('\n\n').map((para: string, j: number) => (
@@ -180,12 +203,20 @@ const SectionPage: React.FC = () => {
 
       {/* Checklist */}
       {content.checklist && (
-        <div className="space-y-2 my-6">
-          {content.checklist.map((item: string, i: number) => (
-            <label key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-neutral-700 transition-colors">
-              <input type="checkbox" className="w-4 h-4 rounded accent-orange-600" />
-              <span className="text-sm">{item}</span>
-            </label>
+        <Checklist sectionKey={sectionKey} items={content.checklist} />
+      )}
+
+      {/* Diagrams */}
+      {diagrams.length > 0 && (
+        <div className="mt-8">
+          {diagrams.map((diagram, i) => (
+            <MermaidDiagram
+              key={`${sectionKey}-${diagram.id}-${i}`}
+              definition={diagram.definition}
+              title={diagram.titleKo}
+              caption={diagram.caption}
+              diagramType={diagram.type}
+            />
           ))}
         </div>
       )}

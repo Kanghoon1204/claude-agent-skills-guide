@@ -30,7 +30,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({ headers, rows }) => {
               {row.map((cell, ci) => (
                 <td
                   key={ci}
-                  className={`px-4 py-3 ${ci === 0 ? 'font-medium' : 'text-neutral-600 dark:text-neutral-400'}`}
+                  className={`px-4 py-3 ${ci === 0 ? 'font-medium text-neutral-800 dark:text-neutral-200' : 'text-neutral-600 dark:text-neutral-400'}`}
                 >
                   {cell}
                 </td>

@@ -2,7 +2,15 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NAV_DATA, CHAPTER_COLORS } from '../constants';
 import { translations } from '../i18n/translations';
+import { CODE_EXAMPLES } from '../constants/codeExamples';
 import { SearchIcon } from './icons/SearchIcon';
+
+// 검색 컨텍스트 설정 상수
+const SEARCH_CONFIG = {
+  CONTEXT_BEFORE: 20,  // 매칭 위치 앞 문자 수
+  CONTEXT_AFTER: 40,   // 매칭 위치 뒤 문자 수
+  MAX_ITEM_LENGTH: 60, // 아이템 최대 표시 길이
+} as const;
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -16,6 +24,20 @@ interface SearchResult {
   categoryKey: string;
   categoryLabel: string;
   matchContext?: string;
+}
+
+// 텍스트에서 검색어 주변 컨텍스트 추출
+function extractContext(text: string, queryIndex: number, queryLength: number): string {
+  const start = Math.max(0, queryIndex - SEARCH_CONFIG.CONTEXT_BEFORE);
+  const end = Math.min(text.length, queryIndex + queryLength + SEARCH_CONFIG.CONTEXT_AFTER);
+  const prefix = start > 0 ? '...' : '';
+  const suffix = end < text.length ? '...' : '';
+  return prefix + text.slice(start, end).trim() + suffix;
+}
+
+// 텍스트를 최대 길이로 자르기
+function truncateText(text: string, maxLength: number = SEARCH_CONFIG.MAX_ITEM_LENGTH): string {
+  return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
 }
 
 function searchSections(query: string): SearchResult[] {
@@ -44,9 +66,7 @@ function searchSections(query: string): SearchResult[] {
         const idx = bodyLower.indexOf(lowerQuery);
         if (idx !== -1) {
           matched = true;
-          const start = Math.max(0, idx - 20);
-          const end = Math.min(content.body.length, idx + query.length + 40);
-          matchContext = (start > 0 ? '...' : '') + content.body.slice(start, end).trim() + (end < content.body.length ? '...' : '');
+          matchContext = extractContext(content.body, idx, query.length);
         }
       }
 
@@ -63,9 +83,7 @@ function searchSections(query: string): SearchResult[] {
             const idx = subBodyLower.indexOf(lowerQuery);
             if (idx !== -1) {
               matched = true;
-              const start = Math.max(0, idx - 20);
-              const end = Math.min(sub.body.length, idx + query.length + 40);
-              matchContext = (start > 0 ? '...' : '') + sub.body.slice(start, end).trim() + (end < sub.body.length ? '...' : '');
+              matchContext = extractContext(sub.body, idx, query.length);
               break;
             }
           }
@@ -78,7 +96,21 @@ function searchSections(query: string): SearchResult[] {
           const text = typeof it === 'string' ? it : `${it.label} ${it.desc || ''}`;
           if (text.toLowerCase().includes(lowerQuery)) {
             matched = true;
-            matchContext = text.length > 60 ? text.slice(0, 60) + '...' : text;
+            matchContext = truncateText(text);
+            break;
+          }
+        }
+      }
+
+      // Match against code examples
+      if (!matched) {
+        const codeExamples = CODE_EXAMPLES[item.key] || [];
+        for (const ex of codeExamples) {
+          const titleMatch = (ex.titleKo || ex.title || '').toLowerCase().includes(lowerQuery);
+          const codeMatch = ex.code.toLowerCase().includes(lowerQuery);
+          if (titleMatch || codeMatch) {
+            matched = true;
+            matchContext = `📝 코드: ${ex.titleKo || ex.title}`;
             break;
           }
         }
