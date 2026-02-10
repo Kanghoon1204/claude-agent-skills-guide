@@ -5,6 +5,7 @@ import StepBasicInfo from './steps/StepBasicInfo';
 import StepTools from './steps/StepTools';
 import StepInstructions from './steps/StepInstructions';
 import StepReview from './steps/StepReview';
+import ConversationalWizard from './ConversationalWizard';
 
 export interface WizardState {
   name: string;
@@ -33,8 +34,11 @@ const STEPS = [
   { id: 4, title: '검토 및 생성', description: 'YAML 확인 및 복사' },
 ];
 
+type WizardMode = 'conversational' | 'classic';
+
 const SkillCreatorWizard: React.FC = () => {
   const { platform, platformInfo } = usePlatform();
+  const [mode, setMode] = useState<WizardMode>('conversational');
   const [currentStep, setCurrentStep] = useState(1);
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
 
@@ -89,59 +93,123 @@ const SkillCreatorWizard: React.FC = () => {
     }
   };
 
-  return (
-    <div className="bg-white dark:bg-neutral-800 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800/50">
-        <div className="flex items-center gap-2 mb-1">
-          <span
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: platformInfo.color }}
-          />
-          <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-            {platformInfo.name} 스킬 생성기
-          </span>
+  // Conversational mode (default)
+  if (mode === 'conversational') {
+    return (
+      <div className="space-y-3">
+        {/* Mode Toggle */}
+        <div className="flex justify-end">
+          <div className="inline-flex rounded-lg border border-slate-200 dark:border-neutral-700 p-0.5 bg-slate-100 dark:bg-neutral-800">
+            <button
+              onClick={() => setMode('conversational')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                mode === 'conversational'
+                  ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                  : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+              }`}
+            >
+              💬 대화형
+            </button>
+            <button
+              onClick={() => setMode('classic')}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                mode === 'classic'
+                  ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                  : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+              }`}
+            >
+              📋 클래식
+            </button>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-          단계별로 스킬을 만들어 보세요
-        </h3>
+
+        <ConversationalWizard />
       </div>
+    );
+  }
 
-      {/* Progress */}
-      <WizardProgress steps={STEPS} currentStep={currentStep} />
-
-      {/* Content */}
-      <div className="p-6">{renderStep()}</div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800/50 flex justify-between">
-        <button
-          onClick={currentStep === 1 ? handleReset : handlePrev}
-          className="px-4 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-        >
-          {currentStep === 1 ? '초기화' : '이전'}
-        </button>
-
-        {currentStep < 4 ? (
+  // Classic mode (form-based)
+  return (
+    <div className="space-y-3">
+      {/* Mode Toggle */}
+      <div className="flex justify-end">
+        <div className="inline-flex rounded-lg border border-slate-200 dark:border-neutral-700 p-0.5 bg-slate-100 dark:bg-neutral-800">
           <button
-            onClick={handleNext}
-            disabled={!canProceed}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              canProceed
-                ? 'bg-orange-600 text-white hover:bg-orange-700'
-                : 'bg-slate-200 dark:bg-neutral-700 text-slate-400 dark:text-neutral-500 cursor-not-allowed'
+            onClick={() => setMode('conversational')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              mode === 'conversational'
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
             }`}
           >
-            다음
+            💬 대화형
           </button>
-        ) : (
           <button
-            onClick={handleReset}
-            className="px-4 py-2 text-sm font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            onClick={() => setMode('classic')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              mode === 'classic'
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+            }`}
           >
-            처음부터 다시
+            📋 클래식
           </button>
-        )}
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-neutral-800 rounded-xl border border-slate-200 dark:border-neutral-700 overflow-hidden">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800/50">
+          <div className="flex items-center gap-2 mb-1">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: platformInfo.color }}
+            />
+            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+              {platformInfo.name} 스킬 생성기
+            </span>
+          </div>
+          <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            단계별로 스킬을 만들어 보세요
+          </h3>
+        </div>
+
+        {/* Progress */}
+        <WizardProgress steps={STEPS} currentStep={currentStep} />
+
+        {/* Content */}
+        <div className="p-6">{renderStep()}</div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800/50 flex justify-between">
+          <button
+            onClick={currentStep === 1 ? handleReset : handlePrev}
+            className="px-4 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          >
+            {currentStep === 1 ? '초기화' : '이전'}
+          </button>
+
+          {currentStep < 4 ? (
+            <button
+              onClick={handleNext}
+              disabled={!canProceed}
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                canProceed
+                  ? 'bg-orange-600 text-white hover:bg-orange-700'
+                  : 'bg-slate-200 dark:bg-neutral-700 text-slate-400 dark:text-neutral-500 cursor-not-allowed'
+              }`}
+            >
+              다음
+            </button>
+          ) : (
+            <button
+              onClick={handleReset}
+              className="px-4 py-2 text-sm font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              처음부터 다시
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
