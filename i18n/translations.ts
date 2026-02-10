@@ -55,6 +55,7 @@ export const translations: {
     quickChecklist: '빠른 체크리스트',
     yamlReference: 'YAML 레퍼런스',
     completeExamples: '완전한 예제',
+    technicalSpec: '기술 문서 (SPEC)',
   },
 
   // ===========================================================================
@@ -6545,6 +6546,227 @@ jobs:
             },
             { type: 'tip', content: 'scripts/compliance_checker.py에서 정규식 패턴으로 PII를 탐지합니다. references/gdpr-checklist.md에서 전체 검사 항목을 확인하세요.' },
             { type: 'warning', content: '이 스킬은 기술적 검증만 수행합니다. 법률 자문을 대체하지 않으며, 실제 컴플라이언스는 법률 전문가와 상담하세요.' },
+          ],
+        },
+      ],
+    },
+    technicalSpec: {
+      title: '기술 문서 (SPEC)',
+      learningObjectives: [
+        '이 가이드 웹사이트의 기술 스택과 아키텍처를 이해합니다',
+        'React 기반 교육 플랫폼의 컴포넌트 구조를 파악합니다',
+        '콘텐츠 구조화 및 다국어 지원 패턴을 학습합니다',
+      ],
+      blocks: [
+        {
+          type: 'note',
+          content: '이 섹션은 이 가이드 웹사이트 자체의 기술 문서입니다. Claude Agent Skills 가이드 내용이 아닌, 이 교육 플랫폼을 어떻게 구축했는지를 설명합니다.',
+        },
+        {
+          type: 'paragraph',
+          content: '이 문서는 Claude Agent Skills Guide 웹 애플리케이션의 기술 사양을 정의합니다. 개발자 온보딩, React 프로젝트 아키텍처 학습, 기술 문서 작성 템플릿으로 활용할 수 있습니다.',
+        },
+      ],
+      subsections: [
+        {
+          title: '프로젝트 개요',
+          blocks: [
+            { type: 'paragraph', content: 'Anthropic 공식 가이드를 기반으로 한 정적 클라이언트 사이드 교육용 문서 웹 앱입니다.' },
+            {
+              type: 'items',
+              items: [
+                { label: '프로젝트명', desc: 'Claude Agent Skills Guide' },
+                { label: '유형', desc: '정적 클라이언트 사이드 SPA (백엔드 없음)' },
+                { label: '주요 언어', desc: '한국어 (ko)' },
+                { label: '배포', desc: 'Vercel (https://claude-agent-skills-guide.vercel.app)' },
+                { label: '저장소', desc: 'GitHub (https://github.com/Kanghoon1204/claude-agent-skills-guide)' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '기술 스택',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: 'React 19', desc: 'UI 프레임워크' },
+                { label: 'TypeScript 5.8', desc: '타입 안전성' },
+                { label: 'Vite 6.4', desc: '빌드 도구 및 개발 서버' },
+                { label: 'React Router 7', desc: '클라이언트 사이드 라우팅 (HashRouter)' },
+                { label: 'Tailwind CSS', desc: '유틸리티 퍼스트 스타일링 (CDN)' },
+                { label: 'Mermaid', desc: '다이어그램 렌더링' },
+              ],
+            },
+            { type: 'tip', content: 'ES2022 타겟, ESNext 모듈 시스템을 사용합니다. 개발 서버는 포트 3000에서 실행됩니다.' },
+          ],
+        },
+        {
+          title: '디렉터리 구조',
+          blocks: [
+            {
+              type: 'paragraph',
+              content: '프로젝트는 기능별로 폴더가 분리되어 있으며, 각 폴더는 명확한 역할을 갖습니다.',
+            },
+            {
+              type: 'items',
+              items: [
+                { label: 'components/', desc: '재사용 가능 UI 컴포넌트 (21개)' },
+                { label: 'pages/', desc: '페이지 컴포넌트 (HomePage, SectionPage, NotFoundPage)' },
+                { label: 'constants/', desc: '네비게이션 데이터, 다이어그램 정의, 코드 예제' },
+                { label: 'i18n/', desc: '콘텐츠 데이터 (translations.ts - 287KB)' },
+                { label: 'context/', desc: 'React Context (ThemeContext)' },
+                { label: 'hooks/', desc: '커스텀 훅 (useTheme)' },
+                { label: 'public/', desc: '정적 자산 (이미지, 오디오)' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '콘텐츠 구조 (v2.0)',
+          blocks: [
+            { type: 'paragraph', content: '콘텐츠는 블록 기반 구조로 유연하게 구성됩니다. 각 섹션은 학습 목표, 본문, 서브섹션, 다이어그램 등을 포함할 수 있습니다.' },
+            {
+              type: 'items',
+              items: [
+                { label: 'learningObjectives', desc: '섹션별 3개의 학습 목표' },
+                { label: 'blocks', desc: 'paragraph, diagram, items, tip, warning, note, code, comparison, image 타입 지원' },
+                { label: 'subsections', desc: '중첩 가능한 서브섹션 구조' },
+              ],
+            },
+            { type: 'tip', content: '블록 기반 구조 덕분에 다이어그램을 본문 중간에 삽입할 수 있어 학습 흐름이 자연스럽습니다.' },
+          ],
+        },
+        {
+          title: '주요 컴포넌트',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: 'Layout', desc: '전체 앱 레이아웃 셸 (사이드바 + 메인 콘텐츠)' },
+                { label: 'SectionPage', desc: '동적 섹션 콘텐츠 페이지 (블록 기반 렌더링)' },
+                { label: 'MermaidDiagram', desc: 'Mermaid 다이어그램 렌더링 (다크모드 대응)' },
+                { label: 'CodeBlock', desc: '코드 블록 (구문 강조 + 복사 + 접기/펼치기)' },
+                { label: 'ScrollToTop', desc: '페이지 전환 시 스크롤 초기화' },
+                { label: 'Breadcrumb', desc: '브레드크럼 내비게이션' },
+                { label: 'TableOfContents', desc: '섹션 내 서브섹션 목차' },
+                { label: 'AudioPlayer', desc: 'NotebookLM 음성 해설 지원 (구조 준비)' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '일러스트레이션 시스템',
+          blocks: [
+            { type: 'paragraph', content: '시각적 학습을 위해 챕터, 섹션, 인라인 일러스트를 제공합니다.' },
+            {
+              type: 'items',
+              items: [
+                { label: 'ChapterIllustrations', desc: '8개 챕터별 SVG 일러스트 (색상 테마 적용)' },
+                { label: 'SectionIllustrations', desc: '25개 섹션별 추상적 SVG 일러스트' },
+                { label: 'Inline SVG', desc: '4개 핵심 개념 시각화 (progressive-disclosure, skill-ecosystem 등)' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '다이어그램 시스템',
+          blocks: [
+            { type: 'paragraph', content: 'Mermaid 기반으로 90개 이상의 시각적 다이어그램을 제공합니다.' },
+            {
+              type: 'items',
+              items: [
+                { label: 'flowchart', desc: '프로세스 흐름 표현' },
+                { label: 'sequence', desc: '상호작용 시퀀스 표현' },
+                { label: 'graph', desc: '관계도 표현' },
+                { label: 'classDiagram', desc: '데이터 구조 표현' },
+              ],
+            },
+            { type: 'note', content: 'MermaidDiagram 컴포넌트가 테마 변경을 감지하여 다크모드에서도 가독성을 보장합니다.' },
+          ],
+        },
+        {
+          title: '라우팅 및 네비게이션',
+          blocks: [
+            { type: 'paragraph', content: 'HashRouter 기반 클라이언트 사이드 라우팅을 사용합니다. Vercel 배포 시 추가 설정 없이 동작합니다.' },
+            {
+              type: 'items',
+              items: [
+                { label: '/', desc: '/home으로 리다이렉트' },
+                { label: '/home', desc: '메인 랜딩 페이지' },
+                { label: '/sections/:id', desc: '동적 섹션 콘텐츠' },
+                { label: '*', desc: '404 폴백' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '상태 관리',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: 'ThemeContext', desc: '라이트/다크 테마 전역 상태 (localStorage 영속화)' },
+                { label: '로컬 상태', desc: '사이드바, 검색 모달, 코드 블록 상태는 컴포넌트 로컬 상태로 관리' },
+              ],
+            },
+            { type: 'tip', content: '초기 테마는 localStorage → 시스템 설정 → 라이트 순서로 결정됩니다.' },
+          ],
+        },
+        {
+          title: 'UI/UX 스펙',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: '반응형', desc: '모바일: 오버레이 사이드바 / 데스크탑: 고정 사이드바' },
+                { label: '키보드 단축키', desc: 'Cmd/Ctrl+K (검색), ↑↓ (탐색), Enter (선택), Escape (닫기)' },
+                { label: '애니메이션', desc: 'fade-in, slide-up 키프레임' },
+                { label: '읽기 진행률', desc: '상단 프로그레스 바로 현재 읽기 위치 표시' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '빌드 및 배포',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: 'npm run dev', desc: '개발 서버 (포트 3000)' },
+                { label: 'npm run build', desc: '프로덕션 빌드' },
+                { label: 'npm run preview', desc: '빌드 프리뷰' },
+              ],
+            },
+            { type: 'note', content: '빌드 출력: index.html (~6KB), index.js (~1.28MB, gzip: ~381KB)' },
+          ],
+        },
+        {
+          title: '콘텐츠 통계',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: '카테고리', desc: '8개 (소개, 제1장~제6장, 부록)' },
+                { label: '섹션', desc: '28개 (+ 기술 문서 1개)' },
+                { label: '다이어그램', desc: '90개 이상' },
+                { label: '코드 예제', desc: '50개 이상' },
+                { label: '일러스트', desc: '챕터 8개 + 섹션 25개 + 인라인 4개' },
+              ],
+            },
+          ],
+        },
+        {
+          title: '버전 히스토리',
+          blocks: [
+            {
+              type: 'items',
+              items: [
+                { label: 'v1.0.0 (2026-02-05)', desc: '초기 릴리스' },
+                { label: 'v2.0.0 (2026-02-10)', desc: '학습 목표, 다이어그램, 일러스트, 블록 기반 콘텐츠, UI 개선' },
+              ],
+            },
+            { type: 'tip', content: '이 문서는 프로젝트 변경 시 함께 업데이트됩니다. 전체 SPEC.md 파일은 프로젝트 루트에서 확인할 수 있습니다.' },
           ],
         },
       ],
