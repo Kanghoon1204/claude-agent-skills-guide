@@ -79,7 +79,7 @@ export const DIAGRAMS: Record<string, DiagramDefinition[]> = {
       title: 'Target Audience Learning Paths',
       type: 'flowchart',
       definition: `flowchart LR
-  G["📚 Claude Skills Guide"]
+  G["📚 Agent Skills Guide"]
 
   subgraph DEV["🔧 개발자"]
     direction TB
