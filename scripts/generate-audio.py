@@ -18,7 +18,7 @@ import os
 import edge_tts
 
 # 설정
-VOICE = "ko-KR-YuJinNeural"  # 여성, 또렷한 발음
+VOICE = "ko-KR-InJoonNeural"  # 남성, 친근하고 또렷함
 OUTPUT_DIR = "../public/audio/ko"
 RATE = "-5%"  # 약간 느리게 (학습용)
 

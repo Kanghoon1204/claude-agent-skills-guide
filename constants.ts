@@ -131,16 +131,16 @@ export const CHAPTER_ILLUSTRATIONS: Record<string, string> = {
   resourcesAndReferences: '/images/chapters/resources-and-references.png',
 };
 
-// Section audio files (Korean TTS voice-over)
+// Section audio files (Korean TTS voice-over, InJoonNeural - 남성, 또렷함)
 export const SECTION_AUDIO: Record<string, { src: string; title: string }> = {
   // 소개
-  whatAreSkills: { src: '/audio/ko/what-are-skills.m4a', title: '스킬이란? - 음성 해설' },
-  whoIsThisFor: { src: '/audio/ko/who-is-this-for.m4a', title: '누구를 위한 가이드인가 - 음성 해설' },
-  twoPaths: { src: '/audio/ko/two-paths.m4a', title: '두 가지 경로 - 음성 해설' },
+  whatAreSkills: { src: '/audio/ko/what-are-skills.mp3', title: '스킬이란? - 음성 해설' },
+  whoIsThisFor: { src: '/audio/ko/who-is-this-for.mp3', title: '누구를 위한 가이드인가 - 음성 해설' },
+  twoPaths: { src: '/audio/ko/two-paths.mp3', title: '두 가지 경로 - 음성 해설' },
   // 제1장: 기초
-  whatIsASkill: { src: '/audio/ko/what-is-a-skill.m4a', title: '스킬의 구조 - 음성 해설' },
-  coreDesignPrinciples: { src: '/audio/ko/core-design-principles.m4a', title: '핵심 설계 원칙 - 음성 해설' },
-  mcpAndSkills: { src: '/audio/ko/mcp-and-skills.m4a', title: 'MCP와 스킬 - 음성 해설' },
+  whatIsASkill: { src: '/audio/ko/what-is-a-skill.mp3', title: '스킬의 구조 - 음성 해설' },
+  coreDesignPrinciples: { src: '/audio/ko/core-design-principles.mp3', title: '핵심 설계 원칙 - 음성 해설' },
+  mcpAndSkills: { src: '/audio/ko/mcp-and-skills.mp3', title: 'MCP와 스킬 - 음성 해설' },
   // 제2장: 설계와 기획
   useCases: { src: '/audio/ko/use-cases.m4a', title: '사용 사례 - 음성 해설' },
   skillCategories: { src: '/audio/ko/skill-categories.m4a', title: '스킬 카테고리 - 음성 해설' },
