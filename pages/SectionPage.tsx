@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { translations } from '../i18n/translations';
-import { NAV_DATA, CHAPTER_COLORS, pathToKey, findCategoryForSection, getAllSections, CHAPTER_FIRST_SECTIONS } from '../constants';
+import { NAV_DATA, CHAPTER_COLORS, pathToKey, findCategoryForSection, getAllSections, CHAPTER_FIRST_SECTIONS, SECTION_AUDIO, AUDIO_PREVIEW_MODE } from '../constants';
 import { CODE_EXAMPLES } from '../constants/codeExamples';
 import { DIAGRAMS } from '../constants/diagrams';
 import CodeBlock from '../components/CodeBlock';
@@ -11,6 +11,7 @@ import ComparisonTable from '../components/ComparisonTable';
 import Checklist from '../components/Checklist';
 import TableOfContents from '../components/TableOfContents';
 import ChapterIllustration from '../components/ChapterIllustration';
+import AudioPlayer from '../components/AudioPlayer';
 
 // Block type definitions for new content structure
 interface ContentBlock {
@@ -183,6 +184,16 @@ const SectionPage: React.FC = () => {
 
       {/* Title */}
       <h1 className="text-3xl font-bold tracking-tight mb-6">{content.title}</h1>
+
+      {/* Audio Player (NotebookLM Voice-over) */}
+      {(SECTION_AUDIO[sectionKey] || AUDIO_PREVIEW_MODE) && (
+        <AudioPlayer
+          src={SECTION_AUDIO[sectionKey]?.src}
+          title={SECTION_AUDIO[sectionKey]?.title || `${content.title} - 음성 해설`}
+          chapter={categoryKey}
+          isPreview={AUDIO_PREVIEW_MODE && !SECTION_AUDIO[sectionKey]}
+        />
+      )}
 
       {/* Body */}
       {content.body && (

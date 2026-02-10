@@ -17,7 +17,7 @@ const ChapterIllustration: React.FC<ChapterIllustrationProps> = ({ chapter, clas
   return (
     <div className={`relative overflow-hidden rounded-xl ${className}`}>
       {/* Image container with aspect ratio */}
-      <div className="relative aspect-[16/9] max-h-48 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
+      <div className="relative aspect-[16/9] max-h-80 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-lg">
         <img
           src={imagePath}
           alt={`${chapterTitle} illustration`}

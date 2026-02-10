@@ -128,3 +128,13 @@ export const CHAPTER_ILLUSTRATIONS: Record<string, string> = {
   patternsAndTroubleshooting: '/images/chapters/patterns-and-troubleshooting.png',
   resourcesAndReferences: '/images/chapters/resources-and-references.png',
 };
+
+// Section audio files (NotebookLM voice-over)
+// Audio files should be placed in /public/audio/ko/[section-key].mp3
+export const SECTION_AUDIO: Record<string, { src: string; title: string }> = {
+  // 음성 파일이 추가되면 여기에 등록
+  // 예: whatAreSkills: { src: '/audio/ko/what-are-skills.mp3', title: '스킬이란? - 음성 해설' },
+};
+
+// Check if audio preview mode is enabled (shows placeholder for sections without audio)
+export const AUDIO_PREVIEW_MODE = true;
