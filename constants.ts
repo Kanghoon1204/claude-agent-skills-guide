@@ -142,35 +142,35 @@ export const SECTION_AUDIO: Record<string, { src: string; title: string }> = {
   coreDesignPrinciples: { src: '/audio/ko/core-design-principles.mp3', title: '핵심 설계 원칙 - 음성 해설' },
   mcpAndSkills: { src: '/audio/ko/mcp-and-skills.mp3', title: 'MCP와 스킬 - 음성 해설' },
   // 제2장: 설계와 기획
-  useCases: { src: '/audio/ko/use-cases.m4a', title: '사용 사례 - 음성 해설' },
-  skillCategories: { src: '/audio/ko/skill-categories.m4a', title: '스킬 카테고리 - 음성 해설' },
-  successCriteria: { src: '/audio/ko/success-criteria.m4a', title: '성공 기준 - 음성 해설' },
-  technicalRequirements: { src: '/audio/ko/technical-requirements.m4a', title: '기술 요구사항 - 음성 해설' },
-  writingEffectiveSkills: { src: '/audio/ko/writing-effective-skills.m4a', title: '효과적인 스킬 작성법 - 음성 해설' },
+  useCases: { src: '/audio/ko/use-cases.mp3', title: '사용 사례 - 음성 해설' },
+  skillCategories: { src: '/audio/ko/skill-categories.mp3', title: '스킬 카테고리 - 음성 해설' },
+  successCriteria: { src: '/audio/ko/success-criteria.mp3', title: '성공 기준 - 음성 해설' },
+  technicalRequirements: { src: '/audio/ko/technical-requirements.mp3', title: '기술 요구사항 - 음성 해설' },
+  writingEffectiveSkills: { src: '/audio/ko/writing-effective-skills.mp3', title: '효과적인 스킬 작성법 - 음성 해설' },
   // 제3장: 테스트와 반복
-  testingApproaches: { src: '/audio/ko/testing-approaches.m4a', title: '테스트 접근법 - 음성 해설' },
-  testingAreas: { src: '/audio/ko/testing-areas.m4a', title: '테스트 영역 - 음성 해설' },
-  skillCreatorTool: { src: '/audio/ko/skill-creator-tool.m4a', title: '스킬 크리에이터 도구 - 음성 해설' },
+  testingApproaches: { src: '/audio/ko/testing-approaches.mp3', title: '테스트 접근법 - 음성 해설' },
+  testingAreas: { src: '/audio/ko/testing-areas.mp3', title: '테스트 영역 - 음성 해설' },
+  skillCreatorTool: { src: '/audio/ko/skill-creator-tool.mp3', title: '스킬 크리에이터 도구 - 음성 해설' },
   skillCreatorWizard: { src: '/audio/ko/skill-creator-wizard.mp3', title: '스킬 생성 위저드 - 음성 해설' },
-  iterationFeedback: { src: '/audio/ko/iteration-feedback.m4a', title: '반복과 피드백 - 음성 해설' },
+  iterationFeedback: { src: '/audio/ko/iteration-feedback.mp3', title: '반복과 피드백 - 음성 해설' },
   // 제4장: 배포와 공유
-  distributionModel: { src: '/audio/ko/distribution-model.m4a', title: '배포 모델 - 음성 해설' },
-  openStandard: { src: '/audio/ko/open-standard.m4a', title: '오픈 스탠다드 - 음성 해설' },
-  skillsViaApi: { src: '/audio/ko/skills-via-api.m4a', title: 'API를 통한 스킬 - 음성 해설' },
-  recommendedApproach: { src: '/audio/ko/recommended-approach.m4a', title: '권장 접근법 - 음성 해설' },
-  positioningYourSkill: { src: '/audio/ko/positioning-your-skill.m4a', title: '스킬 포지셔닝 - 음성 해설' },
+  distributionModel: { src: '/audio/ko/distribution-model.mp3', title: '배포 모델 - 음성 해설' },
+  openStandard: { src: '/audio/ko/open-standard.mp3', title: '오픈 스탠다드 - 음성 해설' },
+  skillsViaApi: { src: '/audio/ko/skills-via-api.mp3', title: 'API를 통한 스킬 - 음성 해설' },
+  recommendedApproach: { src: '/audio/ko/recommended-approach.mp3', title: '권장 접근법 - 음성 해설' },
+  positioningYourSkill: { src: '/audio/ko/positioning-your-skill.mp3', title: '스킬 포지셔닝 - 음성 해설' },
   // 제5장: 패턴과 문제 해결
-  skillPatterns: { src: '/audio/ko/skill-patterns.m4a', title: '스킬 패턴 - 음성 해설' },
-  troubleshooting: { src: '/audio/ko/troubleshooting.m4a', title: '문제 해결 - 음성 해설' },
+  skillPatterns: { src: '/audio/ko/skill-patterns.mp3', title: '스킬 패턴 - 음성 해설' },
+  troubleshooting: { src: '/audio/ko/troubleshooting.mp3', title: '문제 해결 - 음성 해설' },
   // 제6장: 리소스와 참고자료
-  officialDocs: { src: '/audio/ko/official-docs.m4a', title: '공식 문서 - 음성 해설' },
-  exampleSkills: { src: '/audio/ko/example-skills.m4a', title: '예제 스킬 - 음성 해설' },
-  toolsAndUtilities: { src: '/audio/ko/tools-and-utilities.m4a', title: '도구 및 유틸리티 - 음성 해설' },
+  officialDocs: { src: '/audio/ko/official-docs.mp3', title: '공식 문서 - 음성 해설' },
+  exampleSkills: { src: '/audio/ko/example-skills.mp3', title: '예제 스킬 - 음성 해설' },
+  toolsAndUtilities: { src: '/audio/ko/tools-and-utilities.mp3', title: '도구 및 유틸리티 - 음성 해설' },
   // 부록
-  quickChecklist: { src: '/audio/ko/quick-checklist.m4a', title: '빠른 체크리스트 - 음성 해설' },
-  yamlReference: { src: '/audio/ko/yaml-reference.m4a', title: 'YAML 레퍼런스 - 음성 해설' },
-  completeExamples: { src: '/audio/ko/complete-examples.m4a', title: '완전한 예제 - 음성 해설' },
-  // technicalSpec: 음성 파일 미준비
+  quickChecklist: { src: '/audio/ko/quick-checklist.mp3', title: '빠른 체크리스트 - 음성 해설' },
+  yamlReference: { src: '/audio/ko/yaml-reference.mp3', title: 'YAML 레퍼런스 - 음성 해설' },
+  completeExamples: { src: '/audio/ko/complete-examples.mp3', title: '완전한 예제 - 음성 해설' },
+  // technicalSpec: 음성 파일 없음
 };
 
 // Check if audio preview mode is enabled (shows placeholder for sections without audio)
