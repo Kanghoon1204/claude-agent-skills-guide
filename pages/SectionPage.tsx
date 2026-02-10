@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { translations } from '../i18n/translations';
 import { NAV_DATA, CHAPTER_COLORS, pathToKey, findCategoryForSection, getAllSections, CHAPTER_FIRST_SECTIONS, SECTION_AUDIO, AUDIO_PREVIEW_MODE } from '../constants';
@@ -16,6 +16,8 @@ import AudioPlayer from '../components/AudioPlayer';
 import Breadcrumb from '../components/Breadcrumb';
 import SkillCreatorWizard from '../components/SkillCreatorWizard';
 import PlatformBanner from '../components/PlatformBanner';
+import { usePlatform } from '../hooks/usePlatform';
+import { deepReplacePlatformText } from '../utils/platformText';
 
 // Block type definitions for new content structure
 interface ContentBlock {
@@ -32,11 +34,19 @@ interface ContentBlock {
 
 const SectionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { platform } = usePlatform();
 
   const sectionKey = id ? pathToKey(`/sections/${id}`) : '';
   const categoryKey = findCategoryForSection(sectionKey);
   const colors = categoryKey ? CHAPTER_COLORS[categoryKey] : CHAPTER_COLORS.introduction;
-  const content = (translations.content as any)?.[sectionKey];
+  const rawContent = (translations.content as any)?.[sectionKey];
+
+  // Apply platform-specific text replacement
+  const content = useMemo(() => {
+    if (!rawContent) return null;
+    return deepReplacePlatformText(rawContent, platform);
+  }, [rawContent, platform]);
+
   const codeExamples = CODE_EXAMPLES[sectionKey] || [];
   const diagrams = DIAGRAMS[sectionKey] || [];
 
