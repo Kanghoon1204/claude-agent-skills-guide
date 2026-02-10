@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
-import { usePlatform } from '../hooks/usePlatform';
 import { SunIcon } from './icons/SunIcon';
 import { MoonIcon } from './icons/MoonIcon';
 import { MenuIcon } from './icons/MenuIcon';
@@ -16,7 +15,6 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
   const { theme, toggleTheme } = useTheme();
-  const { platformInfo } = usePlatform();
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-slate-100/80 dark:bg-neutral-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-neutral-700">
@@ -30,11 +28,11 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
         </button>
 
         <Link to="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: platformInfo.color }}>
-            <span className="text-white font-bold text-sm">S</span>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">A</span>
           </div>
           <span className="font-semibold text-sm hidden sm:inline">
-            {platformInfo.name} Skills
+            Agent Skills
           </span>
         </Link>
       </div>
