@@ -1,6 +1,11 @@
 import { Platform } from '../context/PlatformContext';
 
 // Platform-specific terminology mappings
+// References:
+// - Claude: https://docs.anthropic.com/en/docs/claude-code/skills
+// - Cursor: https://docs.cursor.com/context/rules-for-ai
+// - Codex: https://developers.openai.com/codex/guides/agents-md/
+// - Windsurf: https://docs.windsurf.com/windsurf/cascade/workflows
 const PLATFORM_TERMS: Record<Platform, {
   name: string;
   fullName: string;
@@ -23,28 +28,28 @@ const PLATFORM_TERMS: Record<Platform, {
     name: 'Cursor',
     fullName: 'Cursor AI',
     skillFile: '.cursorrules',
-    skillFolder: '.cursor',
-    globalPath: '~/.cursor/rules/<name>.mdc',
-    projectPath: '.cursorrules 또는 .cursor/rules/<name>.mdc',
-    webInterface: 'Cursor 설정 > Rules',
+    skillFolder: '.cursor/rules',
+    globalPath: '~/.cursor/rules/<name>.mdc (또는 전역 설정)',
+    projectPath: '.cursorrules (루트) 또는 .cursor/rules/*.mdc',
+    webInterface: 'Cursor Settings > Rules for AI',
   },
   codex: {
     name: 'Codex',
     fullName: 'OpenAI Codex CLI',
     skillFile: 'AGENTS.md',
-    skillFolder: '.codex',
-    globalPath: '~/.codex/agents/<name>/AGENTS.md',
-    projectPath: '.codex/agents/<name>/AGENTS.md',
-    webInterface: 'Codex CLI 설정',
+    skillFolder: '',
+    globalPath: '~/.codex/AGENTS.md',
+    projectPath: 'AGENTS.md (프로젝트 루트)',
+    webInterface: 'Codex CLI',
   },
   windsurf: {
     name: 'Windsurf',
     fullName: 'Windsurf IDE',
     skillFile: '.windsurfrules',
-    skillFolder: '.windsurf',
-    globalPath: '~/.windsurf/rules/<name>.md',
-    projectPath: '.windsurfrules 또는 .windsurf/rules/<name>.md',
-    webInterface: 'Windsurf 설정 > AI Rules',
+    skillFolder: '.windsurf/rules',
+    globalPath: 'global_rules.md (전역)',
+    projectPath: '.windsurfrules (루트) 또는 .windsurf/rules/*.md',
+    webInterface: 'Windsurf Settings > Rules',
   },
 };
 

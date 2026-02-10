@@ -25,45 +25,69 @@ ${state.instructions}
 };
 
 const generateCursorRules = (state: WizardState): string => {
+  // Cursor uses plain markdown rules in .cursorrules
+  // Reference: https://docs.cursor.com/context/rules-for-ai
+  const mcpSection = state.tools.mcp.length > 0
+    ? `\nWhen working with external services, use these MCP integrations:\n${state.tools.mcp.map((t) => `- ${t}`).join('\n')}\n`
+    : '';
+
   return `# ${state.name}
 
 ${state.description}
 
-## Available Tools
-${state.tools.builtin.map((t) => `- ${t}`).join('\n')}
-${state.tools.mcp.length > 0 ? `\n## MCP Integrations\n${state.tools.mcp.map((t) => `- ${t}`).join('\n')}` : ''}
-
-## Instructions
+## Guidelines
 
 ${state.instructions}
+${mcpSection}
+## Preferred Tools
+
+When implementing solutions, prefer using these capabilities:
+${state.tools.builtin.map((t) => `- ${t}`).join('\n')}
 `;
 };
 
 const generateCodexAgents = (state: WizardState): string => {
-  return `# AGENTS.md - ${state.name}
+  // AGENTS.md is just standard Markdown with natural language instructions
+  // Reference: https://developers.openai.com/codex/guides/agents-md/
+  const mcpSection = state.tools.mcp.length > 0
+    ? `\n## External Integrations\n\nThis project uses the following MCP integrations:\n${state.tools.mcp.map((t) => `- ${t}`).join('\n')}\n`
+    : '';
 
-## Description
+  return `# ${state.name}
+
 ${state.description}
 
-## Capabilities
-${state.tools.builtin.map((t) => `- ${t}`).join('\n')}
-
-## Instructions
+## Working Agreements
 
 ${state.instructions}
+${mcpSection}
+## Development Guidelines
+
+When working on this project:
+${state.tools.builtin.map((t) => `- Use ${t} for relevant operations`).join('\n')}
 `;
 };
 
 const generateWindsurfConfig = (state: WizardState): string => {
-  return `# Windsurf Configuration: ${state.name}
+  // Windsurf uses simple markdown with bullet points or numbered lists
+  // Reference: https://docs.windsurf.com, https://windsurf.com/editor/directory
+  const mcpSection = state.tools.mcp.length > 0
+    ? `\n## External Services\n${state.tools.mcp.map((t) => `- Use ${t} for external integrations`).join('\n')}\n`
+    : '';
 
-description: "${state.description}"
+  return `# ${state.name}
 
-tools:
-${state.tools.builtin.map((t) => `  - name: ${t}`).join('\n')}
+${state.description}
 
-instructions: |
-${state.instructions.split('\n').map((line) => `  ${line}`).join('\n')}
+## ALWAYS
+${state.instructions.split('\n').filter(l => l.trim()).map(l => `- ${l.trim()}`).join('\n')}
+
+## Preferred Tools
+${state.tools.builtin.map((t) => `- Use ${t} when applicable`).join('\n')}
+${mcpSection}
+## NEVER
+- Skip validation before committing
+- Ignore error handling
 `;
 };
 
@@ -78,7 +102,7 @@ const FILE_NAMES: Record<Platform, string> = {
   claude: 'SKILL.md',
   cursor: '.cursorrules',
   codex: 'AGENTS.md',
-  windsurf: 'windsurf.yaml',
+  windsurf: '.windsurfrules',
 };
 
 const StepReview: React.FC<StepReviewProps> = ({ state, platform }) => {
