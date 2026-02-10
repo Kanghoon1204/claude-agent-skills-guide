@@ -168,7 +168,7 @@ export const SECTION_AUDIO: Record<string, { src: string; title: string }> = {
   quickChecklist: { src: '/audio/ko/quick-checklist.m4a', title: '빠른 체크리스트 - 음성 해설' },
   yamlReference: { src: '/audio/ko/yaml-reference.m4a', title: 'YAML 레퍼런스 - 음성 해설' },
   completeExamples: { src: '/audio/ko/complete-examples.m4a', title: '완전한 예제 - 음성 해설' },
-  technicalSpec: { src: '/audio/ko/technical-spec.m4a', title: '기술 문서 (SPEC) - 음성 해설' },
+  // technicalSpec: 음성 파일 미준비
 };
 
 // Check if audio preview mode is enabled (shows placeholder for sections without audio)
