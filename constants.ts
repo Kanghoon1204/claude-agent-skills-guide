@@ -41,6 +41,7 @@ export const NAV_DATA: NavCategory[] = [
       { key: 'testingApproaches', path: '/sections/testing-approaches' },
       { key: 'testingAreas', path: '/sections/testing-areas' },
       { key: 'skillCreatorTool', path: '/sections/skill-creator-tool' },
+      { key: 'skillCreatorWizard', path: '/sections/skill-creator-wizard' },
       { key: 'iterationFeedback', path: '/sections/iteration-feedback' },
     ],
   },
@@ -150,6 +151,7 @@ export const SECTION_AUDIO: Record<string, { src: string; title: string }> = {
   testingApproaches: { src: '/audio/ko/testing-approaches.m4a', title: '테스트 접근법 - 음성 해설' },
   testingAreas: { src: '/audio/ko/testing-areas.m4a', title: '테스트 영역 - 음성 해설' },
   skillCreatorTool: { src: '/audio/ko/skill-creator-tool.m4a', title: '스킬 크리에이터 도구 - 음성 해설' },
+  skillCreatorWizard: { src: '/audio/ko/skill-creator-wizard.mp3', title: '스킬 생성 위저드 - 음성 해설' },
   iterationFeedback: { src: '/audio/ko/iteration-feedback.m4a', title: '반복과 피드백 - 음성 해설' },
   // 제4장: 배포와 공유
   distributionModel: { src: '/audio/ko/distribution-model.m4a', title: '배포 모델 - 음성 해설' },

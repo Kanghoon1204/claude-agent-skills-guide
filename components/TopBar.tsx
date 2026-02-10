@@ -6,6 +6,7 @@ import { MoonIcon } from './icons/MoonIcon';
 import { MenuIcon } from './icons/MenuIcon';
 import { SearchIcon } from './icons/SearchIcon';
 import { GithubIcon } from './icons/GithubIcon';
+import PlatformSelector from './PlatformSelector';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -37,6 +38,8 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
       </div>
 
       <div className="flex items-center gap-2">
+        <PlatformSelector />
+
         <button
           onClick={onSearchClick}
           className="flex items-center gap-2 px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-400 rounded-lg border border-slate-300 dark:border-neutral-600 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"

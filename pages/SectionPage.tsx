@@ -14,10 +14,11 @@ import ChapterIllustration from '../components/ChapterIllustration';
 import { SECTION_ILLUSTRATIONS } from '../components/illustrations/SectionIllustrations';
 import AudioPlayer from '../components/AudioPlayer';
 import Breadcrumb from '../components/Breadcrumb';
+import SkillCreatorWizard from '../components/SkillCreatorWizard';
 
 // Block type definitions for new content structure
 interface ContentBlock {
-  type: 'paragraph' | 'diagram' | 'items' | 'tip' | 'warning' | 'note' | 'good' | 'bad' | 'code' | 'comparison' | 'image';
+  type: 'paragraph' | 'diagram' | 'items' | 'tip' | 'warning' | 'note' | 'good' | 'bad' | 'code' | 'comparison' | 'image' | 'wizard';
   content?: string;
   diagramId?: string;
   codeId?: string;
@@ -125,6 +126,13 @@ const SectionPage: React.FC = () => {
               </figcaption>
             )}
           </figure>
+        );
+
+      case 'wizard':
+        return (
+          <div key={index} className="my-8">
+            <SkillCreatorWizard />
+          </div>
         );
 
       default:
