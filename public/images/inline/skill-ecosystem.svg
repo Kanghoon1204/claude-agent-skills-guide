@@ -1,0 +1,42 @@
+<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="se-grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ea580c" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect fill="#fff7ed" width="800" height="200" rx="16"/>
+
+  <!-- Central skill node -->
+  <circle cx="400" cy="100" r="50" fill="url(#se-grad1)"/>
+  <text x="400" y="95" text-anchor="middle" fill="white" font-size="14" font-weight="bold">SKILL</text>
+  <text x="400" y="112" text-anchor="middle" fill="white" font-size="11">.md</text>
+
+  <!-- Connected nodes -->
+  <!-- Claude.ai -->
+  <circle cx="180" cy="60" r="35" fill="#fdba74" opacity="0.7"/>
+  <text x="180" y="65" text-anchor="middle" fill="#9a3412" font-size="10" font-weight="bold">Claude.ai</text>
+  <line x1="215" y1="75" x2="350" y2="90" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- Claude Code -->
+  <circle cx="180" cy="140" r="35" fill="#fed7aa" opacity="0.8"/>
+  <text x="180" y="138" text-anchor="middle" fill="#9a3412" font-size="9" font-weight="bold">Claude</text>
+  <text x="180" y="150" text-anchor="middle" fill="#9a3412" font-size="9" font-weight="bold">Code</text>
+  <line x1="215" y1="125" x2="350" y2="110" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- API -->
+  <circle cx="620" cy="60" r="35" fill="#fdba74" opacity="0.7"/>
+  <text x="620" y="65" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="bold">API</text>
+  <line x1="585" y1="75" x2="450" y2="90" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- MCP -->
+  <circle cx="620" cy="140" r="35" fill="#fed7aa" opacity="0.8"/>
+  <text x="620" y="145" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="bold">MCP</text>
+  <line x1="585" y1="125" x2="450" y2="110" stroke="#fb923c" stroke-width="2" stroke-dasharray="5,3"/>
+
+  <!-- Decorative elements -->
+  <circle cx="70" cy="100" r="20" fill="#ffedd5" opacity="0.6"/>
+  <circle cx="730" cy="100" r="25" fill="#ffedd5" opacity="0.5"/>
+</svg>

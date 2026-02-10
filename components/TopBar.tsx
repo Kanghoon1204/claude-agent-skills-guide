@@ -20,13 +20,13 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors md:hidden"
+          className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors md:hidden focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
           aria-label="메뉴 열기"
         >
           <MenuIcon className="w-5 h-5" />
         </button>
 
-        <Link to="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <Link to="/home" className="flex items-center gap-2 hover:opacity-80 transition-opacity rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800">
           <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center">
             <span className="text-white font-bold text-sm">S</span>
           </div>
@@ -39,7 +39,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
       <div className="flex items-center gap-2">
         <button
           onClick={onSearchClick}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-400 rounded-lg border border-slate-300 dark:border-neutral-600 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-400 rounded-lg border border-slate-300 dark:border-neutral-600 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
           aria-label="검색"
         >
           <SearchIcon className="w-4 h-4" />
@@ -49,7 +49,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
 
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors"
+          className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
           aria-label="테마 전환"
         >
           {theme === 'light' ? <MoonIcon className="w-5 h-5" /> : <SunIcon className="w-5 h-5" />}
@@ -59,7 +59,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick, onSearchClick }) => {
           href="https://github.com/anthropics/skills"
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors"
+          className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800"
           aria-label="GitHub"
         >
           <GithubIcon className="w-5 h-5" />

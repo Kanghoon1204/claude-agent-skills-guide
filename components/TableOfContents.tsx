@@ -24,7 +24,7 @@ const TOCItemButton: React.FC<TOCItemButtonProps> = ({ item, isActive, onClick }
   <button
     onClick={onClick}
     className={`
-      block w-full text-left text-sm py-1.5 px-2 rounded transition-colors
+      block w-full text-left text-sm py-1.5 px-2 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500
       ${item.level > 1 ? 'pl-4' : ''}
       ${isActive
         ? 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 font-medium'
@@ -96,7 +96,7 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ items }) => {
       {/* Mobile toggle button */}
       <button
         onClick={toggleMobileMenu}
-        className="fixed bottom-4 right-4 z-40 xl:hidden w-12 h-12 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-colors"
+        className="fixed bottom-4 right-4 z-40 xl:hidden w-12 h-12 rounded-full bg-orange-500 text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
         aria-label="목차 열기"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

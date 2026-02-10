@@ -1,6 +1,7 @@
 import React from 'react';
-import { CHAPTER_ILLUSTRATIONS, CHAPTER_COLORS } from '../constants';
+import { CHAPTER_COLORS } from '../constants';
 import { translations } from '../i18n/translations';
+import { CHAPTER_ILLUSTRATIONS_SVG } from './illustrations/ChapterIllustrations';
 
 interface ChapterIllustrationProps {
   chapter: string;
@@ -8,34 +9,27 @@ interface ChapterIllustrationProps {
 }
 
 const ChapterIllustration: React.FC<ChapterIllustrationProps> = ({ chapter, className = '' }) => {
-  const imagePath = CHAPTER_ILLUSTRATIONS[chapter];
+  const IllustrationComponent = CHAPTER_ILLUSTRATIONS_SVG[chapter];
   const colors = CHAPTER_COLORS[chapter];
   const chapterTitle = translations.nav[chapter];
 
-  if (!imagePath) return null;
+  if (!IllustrationComponent) return null;
 
   return (
-    <div className={`relative overflow-hidden rounded-xl ${className}`}>
-      {/* Image container with aspect ratio */}
-      <div className="relative aspect-[16/9] max-h-80 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-lg">
-        <img
-          src={imagePath}
-          alt={`${chapterTitle} illustration`}
-          className="w-full h-full object-cover object-center"
-          loading="lazy"
-        />
-        {/* Gradient overlay for better text readability if needed */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-      </div>
+    <div className={`relative overflow-hidden ${className}`}>
+      {/* SVG illustration container */}
+      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-lg">
+        <IllustrationComponent className="w-full h-auto" />
 
-      {/* Chapter title overlay (optional, can be removed if not needed) */}
-      {/*
-      <div className="absolute bottom-3 left-3">
-        <span className={`text-sm font-bold px-2 py-1 rounded ${colors?.bg} ${colors?.text} ${colors?.darkBg} ${colors?.darkText}`}>
-          {chapterTitle}
-        </span>
+        {/* Chapter title badge */}
+        <div className="absolute top-4 left-4">
+          <span className={`text-sm font-bold px-3 py-1.5 rounded-full shadow-md
+            bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm
+            ${colors?.text} ${colors?.darkText}`}>
+            {chapterTitle}
+          </span>
+        </div>
       </div>
-      */}
     </div>
   );
 };

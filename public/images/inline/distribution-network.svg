@@ -1,0 +1,51 @@
+<svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dn-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#2563eb" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect fill="#eff6ff" width="800" height="200" rx="16"/>
+
+  <!-- Central hub -->
+  <circle cx="400" cy="100" r="45" fill="url(#dn-grad)"/>
+  <text x="400" y="95" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Your</text>
+  <text x="400" y="112" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Skill</text>
+
+  <!-- Radiating lines and nodes -->
+  <!-- Top left -->
+  <line x1="365" y1="65" x2="180" y2="40" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="160" cy="35" r="25" fill="#60a5fa" opacity="0.6"/>
+  <text x="160" y="38" text-anchor="middle" fill="#1e40af" font-size="9">Team A</text>
+
+  <!-- Top right -->
+  <line x1="435" y1="65" x2="620" y2="40" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="640" cy="35" r="25" fill="#60a5fa" opacity="0.6"/>
+  <text x="640" y="38" text-anchor="middle" fill="#1e40af" font-size="9">Team B</text>
+
+  <!-- Left -->
+  <line x1="355" y1="100" x2="180" y2="100" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="160" cy="100" r="28" fill="#93c5fd" opacity="0.7"/>
+  <text x="160" y="103" text-anchor="middle" fill="#1e40af" font-size="9">Local</text>
+
+  <!-- Right -->
+  <line x1="445" y1="100" x2="620" y2="100" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="640" cy="100" r="28" fill="#93c5fd" opacity="0.7"/>
+  <text x="640" y="103" text-anchor="middle" fill="#1e40af" font-size="9">Global</text>
+
+  <!-- Bottom left -->
+  <line x1="365" y1="135" x2="180" y2="165" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="160" cy="170" r="22" fill="#bfdbfe" opacity="0.8"/>
+  <text x="160" y="173" text-anchor="middle" fill="#1e40af" font-size="9">Git</text>
+
+  <!-- Bottom right -->
+  <line x1="435" y1="135" x2="620" y2="165" stroke="#93c5fd" stroke-width="2"/>
+  <circle cx="640" cy="170" r="22" fill="#bfdbfe" opacity="0.8"/>
+  <text x="640" y="173" text-anchor="middle" fill="#1e40af" font-size="9">API</text>
+
+  <!-- Decorative pulses -->
+  <circle cx="400" cy="100" r="55" fill="none" stroke="#93c5fd" stroke-width="1" opacity="0.5"/>
+  <circle cx="400" cy="100" r="70" fill="none" stroke="#bfdbfe" stroke-width="1" opacity="0.3"/>
+</svg>

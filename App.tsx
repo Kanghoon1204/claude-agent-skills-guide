@@ -5,11 +5,13 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import SectionPage from './pages/SectionPage';
 import NotFoundPage from './pages/NotFoundPage';
+import ScrollToTop from './components/ScrollToTop';
 
 const App: React.FC = () => {
   return (
     <ThemeProvider>
       <HashRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Navigate to="/home" replace />} />

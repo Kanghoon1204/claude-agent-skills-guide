@@ -205,7 +205,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="섹션 검색..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder-neutral-400"
+            className="flex-1 bg-transparent text-sm outline-none placeholder-neutral-400 focus:ring-0"
           />
           <kbd className="px-2 py-0.5 text-[10px] text-neutral-400 bg-neutral-100 dark:bg-neutral-700 rounded">ESC</kbd>
         </div>
@@ -229,7 +229,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                     <button
                       onClick={() => goToResult(result)}
                       onMouseEnter={() => setSelectedIndex(i)}
-                      className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors ${
+                      className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
                         i === selectedIndex
                           ? 'bg-orange-50 dark:bg-orange-900/20'
                           : 'hover:bg-slate-50 dark:hover:bg-neutral-700/50'

@@ -64,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             to="/home"
             onClick={onClose}
             className={({ isActive }) =>
-              `flex items-center gap-2 px-3 py-2 rounded-lg mb-4 transition-colors ${
+              `flex items-center gap-2 px-3 py-2 rounded-lg mb-4 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                 isActive
                   ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
                   : 'hover:bg-slate-200 dark:hover:bg-neutral-700'
@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 <div key={category.key} className="mb-1">
                   <button
                     onClick={() => toggleCategory(category.key)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <div className="flex items-center gap-2">
                       {chNum && (
@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         to={item.path}
                         onClick={onClose}
                         className={({ isActive }) =>
-                          `block pl-8 pr-3 py-1.5 ml-2 text-sm rounded-lg transition-colors ${
+                          `block pl-8 pr-3 py-1.5 ml-2 text-sm rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 ${
                             isActive
                               ? `${colors.bg} ${colors.text} ${colors.darkBg} ${colors.darkText} font-medium`
                               : 'text-neutral-600 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-neutral-700'

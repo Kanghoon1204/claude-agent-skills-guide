@@ -68,6 +68,11 @@ export const translations: {
 
     whatAreSkills: {
       title: '스킬이란?',
+      learningObjectives: [
+        '스킬의 정의와 핵심 개념을 이해합니다',
+        '스킬과 일반 프롬프트의 차이점을 구분할 수 있습니다',
+        '스킬 도입의 정량적 효과를 파악합니다',
+      ],
       body: 'Claude를 사용하면서 "매번 같은 설명을 반복해야 하나?"라는 생각을 해보신 적 있으신가요?\n\n스킬(Skill)은 바로 이 문제를 해결합니다. 스킬은 Claude에게 특정 작업을 수행하는 방법을 가르치는 "레시피"와 같습니다. 마치 요리책의 레시피처럼, 스킬은 Claude가 따라야 할 단계별 지시사항을 담고 있어서, 한 번 만들어 두면 매번 일관된 품질의 결과를 얻을 수 있습니다.\n\n이 섹션에서는 스킬이 무엇인지, 왜 필요한지, 그리고 어떤 가치를 제공하는지 알아보겠습니다.',
       subsections: [
         {
@@ -83,17 +88,18 @@ export const translations: {
               { label: '확장성', desc: 'MCP 서버와 결합하여 GitHub, Slack, 데이터베이스 등 외부 도구까지 활용할 수 있습니다.' },
               { label: '이식성', desc: 'Claude.ai, Claude Code, API 등 모든 Claude 환경에서 동일하게 동작합니다.' },
             ]},
+            { type: 'image', src: '/images/inline/skill-ecosystem.svg', alt: '스킬 에코시스템', caption: '스킬은 Claude.ai, Claude Code, API, MCP 등 모든 Claude 환경에서 동일하게 동작합니다' },
           ],
         },
         {
           title: '스킬 vs 일반 프롬프트',
           blocks: [
             { type: 'paragraph', content: '"그냥 프롬프트를 복사해서 쓰면 되지 않나요?"라고 생각하실 수 있습니다. 물론 가능하지만, 스킬은 단순한 프롬프트 저장과는 근본적으로 다릅니다.' },
-            { type: 'paragraph', content: '일반 프롬프트는 매번 수동으로 붙여넣어야 하지만, 스킬은 한 번 정의하면 자동으로 로드되거나 슬래시 명령어(/)로 즉시 호출됩니다. 더 중요한 것은, 스킬은 도구 접근 권한, 보안 규칙, 토큰 최적화 등을 YAML 형식으로 선언적으로 관리할 수 있다는 점입니다.' },
+            { type: 'paragraph', content: '일반 프롬프트는 매번 수동으로 붙여넣어야 하지만, 스킬은 한 번 정의하면 Claude가 컨텍스트를 파악하여 자동으로 인식하고 필요할 때 활용합니다. 더 중요한 것은, 스킬은 도구 접근 권한, 보안 규칙, 토큰 최적화 등을 YAML 형식으로 선언적으로 관리할 수 있다는 점입니다.' },
             { type: 'comparison', data: {
               headers: ['항목', '일반 프롬프트', '스킬'],
               rows: [
-                ['재사용', '매번 복사-붙여넣기', '자동 로드 또는 / 명령어'],
+                ['재사용', '매번 복사-붙여넣기', 'Claude가 자동 인식 및 활용'],
                 ['도구 제어', '불가능', 'YAML로 선언적 관리'],
                 ['보안', '수동 관리', 'allowed_tools, deny_tools 규칙'],
                 ['공유', '텍스트 복사', '폴더/Git으로 배포'],
@@ -133,6 +139,11 @@ export const translations: {
 
     whoIsThisFor: {
       title: '누구를 위한 가이드인가',
+      learningObjectives: [
+        '자신에게 적합한 학습 경로를 선택합니다',
+        '개발자, 파워 유저, 팀별 활용 방식을 이해합니다',
+        '가이드의 전체 구성과 각 챕터의 역할을 파악합니다',
+      ],
       body: '이 가이드는 Claude 스킬을 처음 접하는 분부터 고급 패턴을 활용하려는 개발자까지 모든 수준의 사용자를 위해 설계되었습니다.\n\n"프로그래밍을 못해도 스킬을 만들 수 있나요?" 네, 가능합니다! 스킬은 본질적으로 마크다운 파일이기 때문에, 코드를 작성하지 않고도 강력한 워크플로우를 만들 수 있습니다.',
       subsections: [
         {
@@ -168,8 +179,20 @@ export const translations: {
 
     twoPaths: {
       title: '두 가지 경로',
-      body: '스킬을 만드는 방법은 크게 두 가지가 있습니다. 여러분의 상황과 목표에 따라 적합한 경로를 선택하실 수 있습니다.\n\n중요한 것은, 어떤 경로를 선택하든 동일한 SKILL.md 파일 형식을 사용한다는 점입니다. 따라서 한 경로로 시작해도 나중에 다른 경로의 기능을 추가할 수 있습니다.',
+      learningObjectives: [
+        '독립형 스킬과 MCP 강화 스킬의 차이를 이해합니다',
+        '자신의 상황에 맞는 스킬 유형을 선택합니다',
+        '두 경로가 상호 보완적임을 인식합니다',
+      ],
+      body: '스킬을 만드는 방법은 크게 두 가지가 있습니다. 여러분의 상황과 목표에 따라 적합한 경로를 선택하실 수 있습니다.\n\n중요한 것은, 어떤 경로를 선택하든 동일한 SKILL.md 파일 형식을 사용한다는 점입니다. 따라서 한 경로로 시작해도 나중에 다른 경로의 기능을 추가할 수 있습니다.\n\n아래 다이어그램은 두 가지 경로의 흐름을 한눈에 보여줍니다.',
       subsections: [
+        {
+          title: '경로 선택 가이드',
+          blocks: [
+            { type: 'diagram', diagramId: 'two-paths-comparison' },
+            { type: 'paragraph', content: '위 다이어그램에서 볼 수 있듯이, 외부 서비스 연동 여부가 경로 선택의 핵심 기준입니다. 이제 각 경로를 자세히 살펴보겠습니다.' },
+          ],
+        },
         {
           title: '경로 1: 독립형 스킬 (Standalone Skills)',
           blocks: [
@@ -224,6 +247,11 @@ export const translations: {
 
     whatIsASkill: {
       title: '스킬의 구조',
+      learningObjectives: [
+        '스킬 폴더의 구조와 각 구성 요소의 역할을 이해합니다',
+        'SKILL.md 파일의 YAML 프론트매터와 마크다운 본문을 구분합니다',
+        '전역 스킬과 프로젝트 스킬의 설치 위치와 우선순위를 파악합니다',
+      ],
       body: '스킬의 기본 구조를 이해하는 것은 효과적인 스킬을 만드는 첫 걸음입니다.\n\n스킬은 본질적으로 "Claude에게 작업을 가르치는 폴더"입니다. 이 폴더 안에는 핵심 파일인 SKILL.md와 선택적인 보조 파일들이 포함됩니다. 마치 요리사에게 레시피 카드(SKILL.md)와 함께 재료(scripts/), 참고 자료(references/), 도구(assets/)를 제공하는 것과 같습니다.',
       subsections: [
         {
@@ -245,12 +273,15 @@ export const translations: {
           title: 'SKILL.md 파일 구조',
           blocks: [
             { type: 'paragraph', content: 'SKILL.md 파일은 두 부분으로 구성됩니다: 상단의 YAML 프론트매터(메타데이터)와 하단의 마크다운 본문(지시사항).' },
+            { type: 'code', codeId: 'minimal-skillmd' },
             { type: 'paragraph', content: 'YAML 프론트매터는 --- 구분자로 감싸져 있으며, Claude가 스킬을 인식하고 언제 사용할지 결정하는 데 필요한 정보를 담고 있습니다. 본문은 실제로 Claude가 따라야 할 지시사항을 담습니다.' },
             { type: 'items', items: [
               { label: 'YAML 프론트매터', desc: '--- 구분자 사이에 name, description, tools 등의 메타데이터를 정의합니다. 항상 시스템 프롬프트에 로드되므로 간결하게 작성하세요.' },
               { label: '마크다운 본문', desc: '프론트매터 아래에 Claude가 따를 지시사항을 마크다운으로 작성합니다. 스킬이 활성화될 때 로드됩니다.' },
             ]},
             { type: 'note', content: '파일명은 반드시 SKILL.md (대문자)여야 합니다. skill.md, Skill.md 등 다른 대소문자 조합은 인식되지 않습니다. 이것은 의도적인 설계로, 스킬 파일을 명확하게 식별하기 위함입니다.' },
+            { type: 'diagram', diagramId: 'skill-loading-flow' },
+            { type: 'paragraph', content: '위 다이어그램은 Claude가 스킬을 발견하고 실행하는 과정을 보여줍니다. YAML 프론트매터가 먼저 로드되어 관련성을 판단하고, 관련 있다면 본문이 로드되어 실행됩니다.' },
           ],
         },
         {
@@ -273,10 +304,21 @@ export const translations: {
 
     coreDesignPrinciples: {
       title: '핵심 설계 원칙',
+      learningObjectives: [
+        'Progressive Disclosure(점진적 공개)로 토큰을 최적화하는 방법을 익힙니다',
+        'Composability(조합성)로 스킬 간 협업을 설계합니다',
+        'Portability(이식성)로 환경 독립적인 스킬을 만듭니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
           content: '효과적인 스킬을 만들기 위해서는 세 가지 핵심 설계 원칙을 이해해야 합니다. 이 원칙들은 단순히 권장사항이 아니라, Anthropic 엔지니어링 팀이 수많은 실험과 피드백을 통해 도출한 실전 가이드라인입니다. 이 원칙들을 따르면 유지보수가 쉽고, 다른 스킬과 자연스럽게 조합되며, 다양한 Claude 환경에서 일관되게 동작하는 스킬을 만들 수 있습니다.',
+        },
+        {
+          type: 'image',
+          src: '/images/inline/progressive-disclosure.svg',
+          alt: 'Progressive Disclosure 3단계 시스템',
+          caption: 'Progressive Disclosure: YAML → SKILL.md → References 순으로 필요한 만큼만 로드하여 토큰을 절약합니다',
         },
         {
           type: 'diagram',
@@ -766,6 +808,11 @@ jobs:
 
     mcpAndSkills: {
       title: 'MCP와 스킬',
+      learningObjectives: [
+        'MCP(연결성)와 스킬(지식)의 역할 분담을 이해합니다',
+        'MCP만 사용할 때의 문제점과 스킬의 보완 효과를 파악합니다',
+        'MCP 도구를 YAML에 선언하는 방법을 익힙니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
@@ -869,6 +916,11 @@ jobs:
 
     useCases: {
       title: '사용 사례',
+      learningObjectives: [
+        '좋은 스킬 후보를 식별하는 4가지 질문을 활용합니다',
+        '반복성, 구체성, 측정 가능성, 독립성 기준으로 사용 사례를 평가합니다',
+        '2-3개의 구체적인 사용 사례를 정의합니다',
+      ],
       blocks: [
         { type: 'paragraph', content: '좋은 스킬은 명확한 사용 사례에서 시작합니다. 스킬을 설계하기 전에 "이 스킬로 정확히 무엇을 해결하고 싶은가?"라는 질문에 답할 수 있어야 합니다. 공식 가이드에서는 2~3개의 구체적인 사용 사례를 먼저 식별하는 것을 권장합니다. 너무 많은 사용 사례를 한꺼번에 커버하려고 하면 스킬이 모호해지고, 반대로 너무 적으면 투자 대비 효과가 떨어집니다.' },
         { type: 'diagram', diagramId: 'use-case-framework' },
@@ -911,6 +963,11 @@ jobs:
 
     skillCategories: {
       title: '스킬 카테고리',
+      learningObjectives: [
+        '문서 생성, 워크플로우 자동화, MCP 강화의 세 가지 카테고리를 구분합니다',
+        '각 카테고리별 핵심 기법과 적합한 예시를 파악합니다',
+        '자신의 사용 사례에 맞는 카테고리를 선택합니다',
+      ],
       blocks: [
         { type: 'paragraph', content: '스킬을 만들기 전에 어떤 유형의 스킬을 만들 것인지 결정해야 합니다. 공식 가이드에서는 세 가지 대표적인 스킬 카테고리를 제시합니다. 각 카테고리는 서로 다른 특징과 핵심 기법을 가지고 있으므로, 여러분의 사용 사례에 가장 적합한 카테고리를 선택하세요.' },
         { type: 'diagram', diagramId: 'skill-categories-overview' },
@@ -967,6 +1024,11 @@ jobs:
 
     successCriteria: {
       title: '성공 기준',
+      learningObjectives: [
+        '정량적 지표(시간, 오류율, 일관성)를 정의하는 방법을 익힙니다',
+        '정성적 지표(사용자 만족도, 자율성)를 측정하는 기준을 설정합니다',
+        '개선 방향을 결정하는 기준선(baseline)을 확립합니다',
+      ],
       blocks: [
         { type: 'paragraph', content: '스킬이 "잘 동작한다"는 것은 무엇을 의미할까요? 이 질문에 명확히 답하지 못한다면, 스킬 개선도 어렵습니다. 공식 가이드에서는 정량적 지표와 정성적 지표를 함께 설정하도록 권장합니다.' },
         { type: 'warning', content: '중요한 점이 있습니다. 아래 수치들은 정밀한 통과/불통과 기준이 아니라 대략적인 벤치마크(rough benchmarks)입니다. 엄밀함을 목표로 하되, 어느 정도 감각 기반 평가(vibes-based assessment) 요소가 있음을 인정해야 합니다. 완벽한 자동화 테스트보다 빠른 피드백 루프가 더 가치 있을 때가 많습니다.' },
@@ -1023,6 +1085,11 @@ jobs:
 
     technicalRequirements: {
       title: '기술 요구사항',
+      learningObjectives: [
+        '스킬 폴더 구조와 필수 파일 명명 규칙을 준수합니다',
+        'YAML 프론트매터의 필수/선택 필드를 올바르게 작성합니다',
+        '일반적인 구문 오류를 예방하고 진단하는 방법을 배웁니다',
+      ],
       blocks: [
         { type: 'paragraph', content: '스킬의 기술적 요구사항은 단순하지만 엄격합니다. 작은 실수 하나가 스킬 전체를 동작하지 않게 만들 수 있습니다. 이 섹션에서는 파일 구조, 명명 규칙, YAML 프론트매터 형식을 정확히 다룹니다. 처음 스킬을 만들 때 이 규칙들을 체크리스트로 활용하세요.' },
         { type: 'diagram', diagramId: 'skill-file-structure' },
@@ -1095,6 +1162,11 @@ jobs:
 
     writingEffectiveSkills: {
       title: '효과적인 스킬 작성법',
+      learningObjectives: [
+        'SKILL.md 본문의 표준 구조(컨텍스트, 워크플로우, 출력 형식)를 적용합니다',
+        '구체적이고 실행 가능한 지시사항을 작성합니다',
+        '에러 처리와 엣지 케이스를 포함한 완성도 높은 스킬을 만듭니다',
+      ],
       blocks: [
         { type: 'paragraph', content: '스킬의 YAML 프론트매터를 작성했다면, 이제 본문을 채울 차례입니다. 좋은 스킬은 명확한 구조, 구체적인 지시사항, 에러 처리, 프로그레시브 디스클로저를 갖추고 있습니다. 이 섹션에서는 공식 가이드에서 권장하는 SKILL.md 본문 작성 구조와 베스트 프랙티스를 다룹니다.' },
         { type: 'diagram', diagramId: 'skill-md-structure' },
@@ -1192,6 +1264,11 @@ jobs:
 
     testingApproaches: {
       title: '테스트 접근법',
+      learningObjectives: [
+        '수동/스크립트/프로그래매틱 테스트의 3가지 수준을 이해합니다',
+        '상황에 맞는 적절한 테스트 전략을 선택합니다',
+        '효과적인 반복 개선 프로세스를 수립합니다',
+      ],
       body: '스킬 개발에서 테스트는 빠질 수 없는 핵심 단계입니다. 하지만 모든 스킬에 같은 수준의 테스트가 필요한 것은 아닙니다. 소규모 팀에서 내부용으로 쓰는 간단한 스킬과, 수천 명의 엔터프라이즈 사용자에게 배포되는 미션 크리티컬 스킬은 당연히 다른 접근법이 필요하겠죠?\n\n이 섹션에서는 상황에 맞는 테스트 전략을 선택하는 방법과, 효과적인 반복 개선 프로세스를 안내해 드리겠습니다.',
       subsections: [
         {
@@ -1669,7 +1746,15 @@ class SkillIntegrationTest:
 
     testingAreas: {
       title: '테스트 영역',
-      body: '스킬이 잘 동작하는지 어떻게 확인할 수 있을까요? 공식 가이드에서는 효과적인 스킬 테스트를 위해 세 가지 핵심 영역을 권장합니다. 각 영역은 스킬의 다른 측면을 검증하며, 모든 영역을 균형 있게 테스트해야 완성도 높은 스킬을 만들 수 있습니다.',
+      learningObjectives: [
+        '트리거링, 워크플로우, 출력의 3가지 핵심 테스트 영역을 이해합니다',
+        '각 영역별 테스트 방법과 성공 기준을 적용합니다',
+        '균형 잡힌 테스트 전략을 수립합니다',
+      ],
+      blocks: [
+        { type: 'paragraph', content: '스킬이 잘 동작하는지 어떻게 확인할 수 있을까요? 공식 가이드에서는 효과적인 스킬 테스트를 위해 세 가지 핵심 영역을 권장합니다. 각 영역은 스킬의 다른 측면을 검증하며, 모든 영역을 균형 있게 테스트해야 완성도 높은 스킬을 만들 수 있습니다.' },
+        { type: 'image', src: '/images/inline/testing-flow.svg', alt: '테스트 3단계 흐름', caption: 'Triggering → Workflow → Output: 스킬 테스트의 3가지 핵심 영역' },
+      ],
       subsections: [
         {
           title: '1. 트리거링 테스트',
@@ -1719,6 +1804,11 @@ class SkillIntegrationTest:
 
     skillCreatorTool: {
       title: '스킬 크리에이터 도구',
+      learningObjectives: [
+        '내장 스킬 크리에이터 도구의 존재와 기능을 파악합니다',
+        '기존 대화에서 스킬 패턴을 추출하는 방법을 배웁니다',
+        '자동 생성된 스킬의 검증과 개선 포인트를 확인합니다',
+      ],
       body: '스킬을 처음부터 직접 작성하는 것이 어렵게 느껴지시나요? 걱정 마세요! skill-creator는 Anthropic에서 제공하는 공식 스킬 제작 도구로, Claude.ai 플러그인 디렉토리나 Claude Code에서 바로 사용할 수 있습니다.\n\nMCP 서버가 준비되어 있고 자동화하고 싶은 상위 2~3개 워크플로우를 알고 있다면, 놀랍게도 한 번의 세션에서 15~30분 만에 기능하는 스킬을 구축하고 테스트할 수 있습니다.',
       subsections: [
         {
@@ -1765,6 +1855,11 @@ class SkillIntegrationTest:
 
     iterationFeedback: {
       title: '반복과 피드백',
+      learningObjectives: [
+        '트리거 실패, 워크플로우 편차, 품질 저하의 3가지 피드백 신호를 인식합니다',
+        '각 신호에 대한 적절한 대응 전략을 적용합니다',
+        '지속적인 개선 사이클을 수립합니다',
+      ],
       body: '스킬은 한 번 만들고 끝나는 것이 아닙니다. 마치 살아있는 문서처럼, 실제 사용 피드백을 바탕으로 지속적으로 개선해 나가야 합니다.\n\n공식 가이드에서는 세 가지 주요 피드백 신호를 제시합니다. 각 신호는 스킬의 서로 다른 문제를 나타내며, 해결 방법도 다릅니다. 이 신호들을 빨리 인식하고 대응할수록 더 좋은 스킬을 만들 수 있습니다.',
       subsections: [
         {
@@ -1822,10 +1917,21 @@ class SkillIntegrationTest:
 
     distributionModel: {
       title: '배포 모델',
+      learningObjectives: [
+        '스킬 배포의 현재 상태와 로드맵을 이해합니다',
+        '개인/팀/조직별 배포 옵션을 구분합니다',
+        '효과적인 스킬 공유 전략을 수립합니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
           content: '스킬을 만들었다면, 이제 다른 사람들과 공유할 차례입니다. 스킬의 배포 방식은 사용자의 규모와 목적에 따라 달라집니다. 개인 사용자가 직접 설치하는 방식부터 조직 전체에 일괄 배포하는 방식까지, 2026년 1월 기준으로 지원되는 배포 모델을 살펴보겠습니다.',
+        },
+        {
+          type: 'image',
+          src: '/images/inline/distribution-network.svg',
+          alt: '스킬 배포 네트워크',
+          caption: '스킬은 Local, Global, Git, API 등 다양한 채널을 통해 팀과 조직에 배포됩니다',
         },
         {
           type: 'diagram',
@@ -1907,6 +2013,11 @@ class SkillIntegrationTest:
 
     openStandard: {
       title: '오픈 스탠다드',
+      learningObjectives: [
+        '스킬의 오픈 스탠다드 철학과 이점을 이해합니다',
+        '다양한 환경에서 스킬을 활용하는 방법을 파악합니다',
+        '커뮤니티 기여와 생태계 참여 방법을 배웁니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
@@ -1964,21 +2075,20 @@ class SkillIntegrationTest:
         },
       ],
       highlights: [
-        {
-          type: 'items',
-          style: 'highlight',
-          items: [
-            '별도의 빌드 과정이 필요 없습니다.',
-            '표준 도구(에디터, Git)만으로 충분합니다.',
-            '사람이 읽고 이해할 수 있는 형식입니다.',
-            'MCP와 동일한 오픈 스탠다드 철학을 따릅니다.',
-          ],
-        },
+        '별도의 빌드 과정이 필요 없습니다.',
+        '표준 도구(에디터, Git)만으로 충분합니다.',
+        '사람이 읽고 이해할 수 있는 형식입니다.',
+        'MCP와 동일한 오픈 스탠다드 철학을 따릅니다.',
       ],
     },
 
     skillsViaApi: {
       title: 'API를 통한 스킬',
+      learningObjectives: [
+        'Anthropic API에서 스킬을 사용하는 방법을 이해합니다',
+        'system 프롬프트와 skills 파라미터의 차이를 구분합니다',
+        'API 기반 스킬 통합의 베스트 프랙티스를 적용합니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
@@ -3237,6 +3347,11 @@ if __name__ == '__main__':
 
     recommendedApproach: {
       title: '권장 접근법',
+      learningObjectives: [
+        '검증된 스킬 개발 워크플로우를 따릅니다',
+        '단계별 접근법의 이점과 적용 방법을 익힙니다',
+        '실무에 바로 적용 가능한 개발 전략을 수립합니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
@@ -3316,6 +3431,11 @@ if __name__ == '__main__':
 
     positioningYourSkill: {
       title: '스킬 포지셔닝',
+      learningObjectives: [
+        '효과적인 스킬 네이밍과 설명 작성법을 익힙니다',
+        '타겟 사용자를 고려한 포지셔닝 전략을 수립합니다',
+        '발견 가능성을 높이는 메타데이터 작성법을 배웁니다',
+      ],
       blocks: [
         {
           type: 'paragraph',
@@ -3400,6 +3520,11 @@ if __name__ == '__main__':
 
     skillPatterns: {
       title: '스킬 패턴',
+      learningObjectives: [
+        '검증된 5가지 스킬 패턴을 이해하고 구분합니다',
+        '각 패턴의 적합한 사용 사례를 파악합니다',
+        '패턴을 조합하여 복잡한 스킬을 설계합니다',
+      ],
       subsections: [
         {
           title: '스킬 패턴 개요',
@@ -5547,6 +5672,11 @@ def call_mcp_tool(tool_name: str, params: dict):
 
     troubleshooting: {
       title: '문제 해결',
+      learningObjectives: [
+        '일반적인 스킬 문제의 증상과 원인을 진단합니다',
+        '체계적인 디버깅 프로세스를 적용합니다',
+        '문제별 해결책을 빠르게 찾아 적용합니다',
+      ],
       subsections: [
         {
           title: '문제 해결 개요',
@@ -5654,6 +5784,11 @@ def call_mcp_tool(tool_name: str, params: dict):
 
     officialDocs: {
       title: '공식 문서',
+      learningObjectives: [
+        'Anthropic 공식 문서와 리소스의 위치를 파악합니다',
+        '효과적인 문서 탐색 방법을 익힙니다',
+        '최신 정보를 지속적으로 업데이트하는 습관을 형성합니다',
+      ],
       subsections: [
         {
           title: '공식 문서',
@@ -5694,6 +5829,11 @@ def call_mcp_tool(tool_name: str, params: dict):
 
     exampleSkills: {
       title: '예제 스킬',
+      learningObjectives: [
+        '실제 동작하는 예제 스킬을 분석하고 이해합니다',
+        '예제에서 패턴과 베스트 프랙티스를 추출합니다',
+        '예제를 커스터마이징하여 자신의 스킬에 적용합니다',
+      ],
       subsections: [
         {
           title: '예제 스킬',
@@ -5737,6 +5877,11 @@ def call_mcp_tool(tool_name: str, params: dict):
 
     toolsAndUtilities: {
       title: '도구 및 유틸리티',
+      learningObjectives: [
+        '스킬 개발을 돕는 도구와 유틸리티를 파악합니다',
+        '개발 환경을 효율적으로 설정합니다',
+        '생산성을 높이는 워크플로우를 구축합니다',
+      ],
       subsections: [
         {
           title: '도구 및 유틸리티',
@@ -5798,6 +5943,11 @@ def call_mcp_tool(tool_name: str, params: dict):
 
     quickChecklist: {
       title: '빠른 체크리스트',
+      learningObjectives: [
+        '스킬 개발 전 필수 체크 항목을 확인합니다',
+        '배포 전 품질 검증 체크리스트를 활용합니다',
+        '일관된 품질 관리 프로세스를 수립합니다',
+      ],
       subsections: [
         {
           title: '스킬 개발 체크리스트',
@@ -5861,6 +6011,11 @@ def call_mcp_tool(tool_name: str, params: dict):
 
     yamlReference: {
       title: 'YAML 레퍼런스',
+      learningObjectives: [
+        '모든 YAML 필드의 용도와 형식을 정확히 파악합니다',
+        '필수/선택 필드를 구분하고 올바르게 사용합니다',
+        '참조 문서로 활용하여 작성 시간을 단축합니다',
+      ],
       subsections: [
         {
           title: 'YAML 프론트매터 개요',
@@ -6234,6 +6389,11 @@ jobs:
 
     completeExamples: {
       title: '완전한 예제',
+      learningObjectives: [
+        '실제 프로덕션 수준의 스킬 구조를 분석합니다',
+        '다양한 유형의 완전한 예제를 참조합니다',
+        '예제를 기반으로 자신만의 스킬을 개발합니다',
+      ],
       subsections: [
         {
           title: '프로덕션 레디 스킬 모음',

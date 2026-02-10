@@ -5,6 +5,7 @@
 // =============================================================================
 
 export interface CodeExample {
+  id?: string;
   title: string;
   titleKo: string;
   language: 'yaml' | 'markdown' | 'bash' | 'python' | 'text';
@@ -17,6 +18,7 @@ export const CODE_EXAMPLES: Record<string, CodeExample[]> = {
   // ===========================================================================
   whatIsASkill: [
     {
+      id: 'folder-structure',
       title: 'Skill Folder Structure',
       titleKo: '스킬 폴더 구조',
       language: 'text',
@@ -29,6 +31,7 @@ export const CODE_EXAMPLES: Record<string, CodeExample[]> = {
     SKILL.md          # Team workflow skill`,
     },
     {
+      id: 'minimal-skillmd',
       title: 'Minimal SKILL.md Example',
       titleKo: '최소 SKILL.md 예제',
       language: 'markdown',

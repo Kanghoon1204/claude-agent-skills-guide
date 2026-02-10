@@ -32,7 +32,7 @@ const Layout: React.FC = () => {
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
           onSearchClick={openSearch}
         />
-        <main className="flex-1 overflow-y-auto">
+        <main id="main-content" className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

@@ -142,7 +142,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to render diagram');
+          setError(err instanceof Error ? err.message : '다이어그램 렌더링 실패');
           setIsLoading(false);
         }
         const errorElement = document.getElementById(`d${diagramId}`);
@@ -162,7 +162,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({
       <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 my-4 animate-fade-in">
         <div className="flex items-center justify-between px-4 py-2 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
           <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-            {title || 'Diagram'}
+            {title || '다이어그램'}
           </span>
           <div className="flex items-center gap-2">
             {diagramType && (
@@ -173,7 +173,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({
             {!isLoading && !error && (
               <button
                 onClick={openModal}
-                className="text-[10px] px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                className="text-[10px] px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
                 title="확대 보기"
               >
                 🔍 확대
@@ -184,17 +184,34 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({
 
         <div className="bg-white dark:bg-neutral-900 p-6 flex justify-center items-center min-h-[200px]">
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-neutral-400 dark:text-neutral-500">
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Loading...
+            <div className="w-full">
+              {/* Skeleton loader */}
+              <div className="animate-pulse space-y-4">
+                <div className="flex justify-center gap-4">
+                  <div className="h-12 w-24 bg-neutral-200 dark:bg-neutral-700 rounded-lg" />
+                  <div className="h-12 w-32 bg-neutral-200 dark:bg-neutral-700 rounded-lg" />
+                  <div className="h-12 w-28 bg-neutral-200 dark:bg-neutral-700 rounded-lg" />
+                </div>
+                <div className="flex justify-center">
+                  <div className="h-1 w-16 bg-neutral-200 dark:bg-neutral-700 rounded" />
+                </div>
+                <div className="flex justify-center gap-4">
+                  <div className="h-10 w-20 bg-neutral-200 dark:bg-neutral-700 rounded-lg" />
+                  <div className="h-10 w-24 bg-neutral-200 dark:bg-neutral-700 rounded-lg" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-2 mt-4 text-sm text-neutral-400 dark:text-neutral-500">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                다이어그램 로딩 중...
+              </div>
             </div>
           )}
           {error && (
             <div className="text-sm text-red-500 dark:text-red-400 p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800 w-full">
-              <div className="font-semibold mb-1">Diagram rendering error</div>
+              <div className="font-semibold mb-1">다이어그램 렌더링 오류</div>
               <pre className="text-xs overflow-x-auto whitespace-pre-wrap">{error}</pre>
             </div>
           )}
@@ -229,11 +246,11 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({
           >
             <div className="sticky top-0 flex items-center justify-between px-4 py-3 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 rounded-t-2xl">
               <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                {title || 'Diagram'}
+                {title || '다이어그램'}
               </span>
               <button
                 onClick={closeModal}
-                className="px-3 py-1 text-sm rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                className="px-3 py-1 text-sm rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 ✕ 닫기
               </button>

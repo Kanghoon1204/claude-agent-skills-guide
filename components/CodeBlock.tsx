@@ -5,10 +5,21 @@ interface CodeBlockProps {
   code: string;
   language?: string;
   title?: string;
+  defaultCollapsed?: boolean;
+  collapsedLines?: number;
 }
 
-const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'text', title }) => {
+const CodeBlock: React.FC<CodeBlockProps> = ({
+  code,
+  language = 'text',
+  title,
+  defaultCollapsed = true,
+  collapsedLines = 6
+}) => {
   const [copied, setCopied] = useState(false);
+  const lines = code.split('\n');
+  const isLongCode = lines.length > collapsedLines + 2;
+  const [isExpanded, setIsExpanded] = useState(!defaultCollapsed || !isLongCode);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
@@ -69,7 +80,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'text', title })
     }
   };
 
-  const lines = code.split('\n');
+  const displayedLines = isExpanded ? lines : lines.slice(0, collapsedLines);
 
   return (
     <div className="rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-700 my-4 animate-fade-in">
@@ -82,8 +93,8 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'text', title })
             </span>
             <button
               onClick={handleCopy}
-              className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-              aria-label="Copy code"
+              className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
+              aria-label="코드 복사"
             >
               {copied ? (
                 <span className="text-xs text-green-500">Copied!</span>
@@ -98,7 +109,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'text', title })
         <div className="flex items-center justify-end px-4 py-1.5 bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
           <button
             onClick={handleCopy}
-            className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+            className="p-1 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             {copied ? (
               <span className="text-xs text-green-500">Copied!</span>
@@ -108,15 +119,35 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'text', title })
           </button>
         </div>
       )}
-      <pre className="bg-neutral-900 dark:bg-neutral-950 p-4 overflow-x-auto text-sm font-mono leading-relaxed">
-        <code>
-          {lines.map((line, i) => (
-            <div key={i} className="text-neutral-300">
-              {highlightLine(line)}
-            </div>
-          ))}
-        </code>
-      </pre>
+      <div className="relative">
+        <pre className={`bg-neutral-900 dark:bg-neutral-950 p-4 overflow-x-auto text-sm font-mono leading-relaxed ${!isExpanded && isLongCode ? 'max-h-48 overflow-hidden' : ''}`}>
+          <code>
+            {displayedLines.map((line, i) => (
+              <div key={i} className="text-neutral-300">
+                {highlightLine(line)}
+              </div>
+            ))}
+          </code>
+        </pre>
+
+        {/* Fade overlay when collapsed */}
+        {isLongCode && !isExpanded && (
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-neutral-900 dark:from-neutral-950 to-transparent pointer-events-none" />
+        )}
+      </div>
+
+      {/* Expand/Collapse button - outside relative container */}
+      {isLongCode && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-full py-2.5 px-4 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 border-t border-neutral-200 dark:border-neutral-700 text-sm font-medium text-neutral-600 dark:text-neutral-300 transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-inset"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d={isExpanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
+          </svg>
+          {isExpanded ? '코드 접기' : `코드 펼치기 (${lines.length}줄)`}
+        </button>
+      )}
     </div>
   );
 };
