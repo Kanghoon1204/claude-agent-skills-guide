@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-edge-tts를 사용하여 Claude Agent Skills Guide의 음성 해설을 생성합니다.
+edge-tts를 사용하여 Agent Skills Guide의 음성 해설을 생성합니다.
 
 사용법:
   pip install edge-tts
   python generate-audio.py
 
 음성 옵션:
-  - ko-KR-SunHiNeural: 여성, 자연스럽고 따뜻한 음성 (기본값)
+  - ko-KR-YuJinNeural: 여성, 또렷한 발음 (현재 사용)
+  - ko-KR-SunHiNeural: 여성, 자연스럽고 따뜻한 음성
   - ko-KR-InJoonNeural: 남성, 자연스러운 음성
+  - ko-KR-HyunsuNeural: 남성, 밝은 톤
 """
 
 import asyncio
@@ -16,7 +18,7 @@ import os
 import edge_tts
 
 # 설정
-VOICE = "ko-KR-SunHiNeural"  # 또는 "ko-KR-InJoonNeural"
+VOICE = "ko-KR-YuJinNeural"  # 여성, 또렷한 발음
 OUTPUT_DIR = "../public/audio/ko"
 RATE = "-5%"  # 약간 느리게 (학습용)
 
