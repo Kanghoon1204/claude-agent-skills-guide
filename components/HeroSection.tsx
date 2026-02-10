@@ -45,7 +45,7 @@ const HeroSection: React.FC = () => {
 
         {/* Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
-          Claude 에이전트
+          AI 에이전트
           <br />
           <span className="bg-gradient-to-r from-yellow-200 to-orange-200 bg-clip-text text-transparent">
             스킬 가이드
@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
 
         {/* Description */}
         <p className="text-lg md:text-xl text-orange-100 max-w-2xl leading-relaxed mb-8">
-          Anthropic 공식 가이드를 기반으로 한 Claude 스킬 구축 완벽 교재입니다.
+          Claude, Cursor, Codex, Windsurf를 위한 스킬 구축 완벽 교재입니다.
           기초부터 배포까지, 코드 스킬과 비코드 스킬 모두를 다룹니다.
         </p>
 
