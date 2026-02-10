@@ -15,6 +15,7 @@ import { SECTION_ILLUSTRATIONS } from '../components/illustrations/SectionIllust
 import AudioPlayer from '../components/AudioPlayer';
 import Breadcrumb from '../components/Breadcrumb';
 import SkillCreatorWizard from '../components/SkillCreatorWizard';
+import PlatformBanner from '../components/PlatformBanner';
 
 // Block type definitions for new content structure
 interface ContentBlock {
@@ -237,6 +238,9 @@ const SectionPage: React.FC = () => {
           {React.createElement(SECTION_ILLUSTRATIONS[sectionKey], { className: 'w-full h-auto' })}
         </div>
       )}
+
+      {/* Platform Selector Banner */}
+      <PlatformBanner />
 
       {/* Audio Player (NotebookLM Voice-over) */}
       {(SECTION_AUDIO[sectionKey] || AUDIO_PREVIEW_MODE) && (
