@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const HeroSection: React.FC = () => {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 p-8 md:p-12 mb-12">
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 p-8 md:p-12 mb-8">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating circles */}
@@ -53,16 +54,33 @@ const HeroSection: React.FC = () => {
         </h1>
 
         {/* Description */}
-        <p className="text-lg md:text-xl text-orange-100 max-w-2xl leading-relaxed mb-8">
+        <p className="text-lg md:text-xl text-orange-100 max-w-2xl leading-relaxed mb-6">
           Claude, Cursor, Codex, Windsurf를 위한 스킬 구축 완벽 교재입니다.
           기초부터 배포까지, 코드 스킬과 비코드 스킬 모두를 다룹니다.
         </p>
 
+        {/* CTA Buttons */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          <Link
+            to="/sections/skill-creator-wizard"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+          >
+            <span className="text-xl">✨</span>
+            지금 스킬 만들기
+          </Link>
+          <Link
+            to="/sections/what-are-skills"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white/20 text-white font-medium rounded-xl border border-white/30 hover:bg-white/30 transition-all"
+          >
+            가이드 시작하기 →
+          </Link>
+        </div>
+
         {/* Stats */}
         <div className="flex flex-wrap gap-6 md:gap-10">
           {[
+            { value: '8', label: '스킬 템플릿' },
             { value: '28', label: '섹션' },
-            { value: '5', label: '실전 패턴' },
             { value: '28', label: '음성 해설' },
           ].map((stat, i) => (
             <div key={i} className="text-center md:text-left">

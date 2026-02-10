@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { NAV_DATA } from '../constants';
 import { ExternalLinkIcon } from '../components/icons/ExternalLinkIcon';
 import HeroSection from '../components/HeroSection';
@@ -143,6 +144,79 @@ const HomePage: React.FC = () => {
             path={cat.items[0].path}
           />
         ))}
+      </div>
+
+      {/* Skill Creator Highlight */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-neutral-800 dark:to-neutral-850 rounded-2xl p-8 mb-8 border border-slate-200 dark:border-neutral-700">
+        {/* Background decoration */}
+        <div className="absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br from-violet-100 to-slate-100 dark:from-violet-900/20 dark:to-transparent rounded-full blur-3xl opacity-50" />
+
+        <div className="relative z-10">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold">스킬 생성기</h2>
+                <span className="px-2 py-0.5 text-xs font-medium bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-full">
+                  대화형
+                </span>
+              </div>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">질문에 답하며 나만의 스킬 만들기</p>
+            </div>
+          </div>
+
+          {/* What is this? */}
+          <div className="bg-white/80 dark:bg-neutral-900/50 backdrop-blur-sm rounded-xl p-5 mb-6 border border-slate-200 dark:border-neutral-700">
+            <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+              AI에게 특정 작업 방법을 가르치는 레시피입니다.
+              코드 리뷰, 커밋 메시지, 테스트 작성 등 반복 작업을 자동화할 수 있습니다.
+            </p>
+          </div>
+
+          {/* 3 Steps - Clean */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {[
+              { step: 1, title: '템플릿 선택', desc: '8개 템플릿 중 선택하거나 직접 정의' },
+              { step: 2, title: '도구 & 지시사항', desc: '필요한 도구와 동작 방식 설정' },
+              { step: 3, title: '복사해서 사용', desc: 'YAML을 프로젝트에 저장하면 완료' },
+            ].map((item) => (
+              <div key={item.step} className="flex items-start gap-3 p-4 bg-white/60 dark:bg-neutral-900/40 rounded-xl border border-slate-200 dark:border-neutral-700">
+                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-violet-100 dark:bg-violet-900/50 flex items-center justify-center text-sm font-bold text-violet-600 dark:text-violet-400">
+                  {item.step}
+                </div>
+                <div>
+                  <span className="font-semibold text-sm block mb-1">{item.title}</span>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              to="/sections/skill-creator-wizard"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+            >
+              시작하기
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+            <div className="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400">
+              <span>8개 템플릿</span>
+              <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-600" />
+              <span>코드 불필요</span>
+              <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-600" />
+              <span>임시 저장</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* External Resources - Enhanced */}

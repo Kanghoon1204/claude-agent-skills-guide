@@ -103,26 +103,18 @@ tools:
       code: `---
 name: deploy-pipeline
 description: Full CI/CD deployment pipeline with safety checks
-tools:
-  - Bash
+# Whitelist only safe commands
+allowed-tools:
+  - Bash(git *)
+  - Bash(npm run *)
+  - Bash(docker build *)
+  - Bash(docker push *)
   - Read
-  - Write
   - Grep
   - Glob
-  - WebFetch
-  - mcp: github
-  - mcp: slack-notifications
-allowed_tools:
-  - Bash(git *)
-  - Bash(npm *)
-  - Bash(docker *)
-deny_tools:
-  - Bash(rm -rf *)
-  - Bash(sudo *)
-intercept:
-  - tool: Bash
-    pattern: "deploy.*production"
-    message: "This will deploy to production. Are you sure?"
+# Fork to subagent for isolation
+context: fork
+agent: general-purpose
 ---`,
     },
     {
@@ -410,35 +402,33 @@ description: >
   A comprehensive description that explains the skill's purpose,
   what it does, and when to use it. Multi-line descriptions
   use YAML block scalar syntax.
-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Glob
-  - Grep
-  - WebFetch
-  - WebSearch
-  - mcp: github
-  - mcp: slack
-  - mcp: postgres
-allowed_tools:
+
+# Claude Code extensions
+argument-hint: "[filename] [options]"
+disable-model-invocation: false
+user-invocable: true
+model: claude-sonnet-4-20250514
+
+# Tool restrictions (whitelist)
+allowed-tools:
   - Bash(git *)
   - Bash(npm run *)
-  - Bash(npx *)
-  - Bash(docker compose *)
-deny_tools:
-  - Bash(rm -rf /*)
-  - Bash(sudo *)
-  - Bash(curl * | bash)
-  - Bash(wget * | bash)
-intercept:
-  - tool: Bash
-    pattern: "deploy.*production"
-    message: "You are about to deploy to production. Please confirm."
-  - tool: Write
-    pattern: ".*\\.env.*"
-    message: "Modifying environment files. Please confirm."
+  - Read
+  - Grep
+  - Glob
+
+# Subagent execution
+context: fork
+agent: Explore
+
+# Agent Skills standard fields
+license: MIT
+compatibility: "claude-code >= 1.0"
+metadata:
+  author: Your Name
+  version: 1.0.0
+  category: development
+  tags: [automation, ci-cd]
 ---`,
     },
     {
@@ -1877,15 +1867,16 @@ cat ~/.claude/mcp.json
 
 ## Bash Command Blocked
 
-**Symptom**: "Command blocked by deny_tools policy"
+**Symptom**: "Command not allowed by allowed-tools whitelist"
 
-**Diagnosis**: Your \`deny_tools\` list is blocking a needed command
+**Diagnosis**: Your \`allowed-tools\` whitelist doesn't include the needed command
 
-**Fix**: Review and adjust the \`deny_tools\` patterns:
+**Fix**: Add the specific command pattern to \`allowed-tools\`:
 \`\`\`yaml
-deny_tools:
-  - Bash(rm -rf /*)     # Be specific - don't use overly broad patterns
-  - Bash(sudo *)
+allowed-tools:
+  - Bash(git *)         # Allow git commands
+  - Bash(npm run *)     # Allow npm scripts
+  - Read                # Allow file reading
 \`\`\``,
     },
     {
@@ -2204,127 +2195,276 @@ tools:
 ---`,
     },
     {
-      title: 'Optional Field: allowed_tools',
-      titleKo: '선택 필드: allowed_tools',
+      title: 'Optional Field: allowed-tools',
+      titleKo: '선택 필드: allowed-tools',
       language: 'yaml',
       code: `---
 name: example-allowed
-description: Demonstrating allowed_tools field
-
-tools:
-  - Bash
-  - Read
-  - Write
+description: Demonstrating allowed-tools field
 
 # OPTIONAL: Whitelist specific tool invocations
 # Uses glob-style patterns
 # If specified, ONLY these patterns are permitted
-allowed_tools:
+allowed-tools:
   # Git commands only
   - Bash(git *)
 
   # Package manager commands
-  - Bash(npm *)
+  - Bash(npm run *)
   - Bash(yarn *)
-  - Bash(pnpm *)
 
-  # Specific build commands
-  - Bash(npx tsc *)
-  - Bash(npx eslint *)
-
-  # Docker commands
-  - Bash(docker build *)
-  - Bash(docker compose *)
-
-  # Read/write only in specific directories
-  - Read(src/*)
-  - Write(src/generated/*)
----`,
-    },
-    {
-      title: 'Optional Field: deny_tools',
-      titleKo: '선택 필드: deny_tools',
-      language: 'yaml',
-      code: `---
-name: example-deny
-description: Demonstrating deny_tools field
-
-tools:
-  - Bash
+  # Read-only tools
   - Read
-  - Write
-
-# OPTIONAL: Blacklist specific tool invocations
-# Patterns that should be blocked for safety
-# deny_tools takes precedence over allowed_tools
-deny_tools:
-  # Dangerous filesystem operations
-  - Bash(rm -rf /*)
-  - Bash(rm -rf ~*)
-  - Bash(chmod -R 777 *)
-
-  # Privilege escalation
-  - Bash(sudo *)
-  - Bash(su *)
-
-  # Dangerous downloads
-  - Bash(curl * | bash)
-  - Bash(curl * | sh)
-  - Bash(wget * | bash)
-  - Bash(wget * | sh)
-
-  # Protect sensitive files
-  - Read(*.env)
-  - Read(*credentials*)
-  - Read(*secret*)
-  - Write(*.env)
-  - Write(*credentials*)
-
-  # Prevent force pushes
-  - Bash(git push --force*)
-  - Bash(git push -f *)
+  - Grep
+  - Glob
 ---`,
     },
     {
-      title: 'Optional Field: intercept',
-      titleKo: '선택 필드: intercept',
+      title: 'Optional Field: disable-model-invocation',
+      titleKo: '선택 필드: disable-model-invocation',
       language: 'yaml',
       code: `---
-name: example-intercept
-description: Demonstrating intercept field
+name: deploy
+description: Deploy the application to production
 
-tools:
-  - Bash
-  - Write
+# Prevent AI from auto-invoking this skill
+# User must manually call /deploy
+disable-model-invocation: true
 
-# OPTIONAL: Require user confirmation for specific operations
-# Matches tool usage against patterns and prompts the user
-intercept:
-  # Confirm before deploying
-  - tool: Bash
-    pattern: "deploy.*"
-    message: "This will trigger a deployment. Are you sure you want to proceed?"
+allowed-tools:
+  - Bash(git *)
+  - Bash(npm run deploy *)
+---
 
-  # Confirm before modifying production config
-  - tool: Write
-    pattern: ".*production.*\\.config.*"
-    message: "You are about to modify a production configuration file. Please confirm."
+Deploy to production:
+1. Run tests
+2. Build the app
+3. Push to deployment target`,
+    },
+    {
+      title: 'Optional Field: context & agent (Subagent)',
+      titleKo: '선택 필드: context & agent (서브에이전트)',
+      language: 'yaml',
+      code: `---
+name: deep-research
+description: Research a topic thoroughly
 
-  # Confirm before running database commands
-  - tool: Bash
-    pattern: ".*DROP TABLE.*"
-    message: "WARNING: This will drop a database table. This action is irreversible."
+# Run in isolated subagent context
+context: fork
+agent: Explore
 
-  # Confirm before publishing packages
-  - tool: Bash
-    pattern: "npm publish.*"
-    message: "This will publish the package to npm. Please verify the version is correct."
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+---
 
-  # Confirm before modifying CI/CD
-  - tool: Write
-    pattern: ".*\\.github/workflows/.*"
-    message: "Modifying GitHub Actions workflow. Changes will affect CI/CD pipeline."
+Research $ARGUMENTS thoroughly:
+1. Find relevant files using Glob and Grep
+2. Read and analyze the code
+3. Summarize findings with file references`,
+    },
+    {
+      title: 'Optional Field: user-invocable',
+      titleKo: '선택 필드: user-invocable',
+      language: 'yaml',
+      code: `---
+name: legacy-system-context
+description: Background knowledge about legacy systems
+
+# Hide from / menu - AI can load this but users cannot invoke directly
+user-invocable: false
+---
+
+This codebase contains legacy modules:
+- auth/v1: Old authentication (deprecated)
+- payments/legacy: Old payment processor
+- utils/compat: Backward compatibility helpers
+
+When working with these modules, prefer new equivalents.`,
+    },
+    {
+      title: 'Claude Code Extensions vs Agent Skills Standard',
+      titleKo: 'Claude Code 확장 필드 vs Agent Skills 표준',
+      language: 'yaml',
+      code: `---
+name: example-full
+description: Example showing all official fields
+
+# === Claude Code Extension Fields ===
+argument-hint: "[filename]"
+disable-model-invocation: false
+user-invocable: true
+allowed-tools: Read, Grep, Glob
+model: claude-sonnet-4-20250514
+context: fork
+agent: Explore
+# hooks: (see hooks documentation)
+
+# === Agent Skills Standard Fields ===
+license: MIT
+compatibility: "node >= 18"
+metadata:
+  author: Your Name
+  version: 1.0.0
+  category: development
+  tags: [automation, productivity]
 ---`,
+    },
+    {
+      title: 'Security Best Practices with allowed-tools',
+      titleKo: 'allowed-tools를 활용한 보안 모범 사례',
+      language: 'yaml',
+      code: `# Use whitelist approach for maximum security
+
+# Read-only skill (no modifications possible)
+---
+name: code-analyzer
+description: Analyze code without modifications
+allowed-tools: Read, Grep, Glob
+---
+
+# Safe deployment skill (only specific commands)
+---
+name: safe-deploy
+description: Deploy with controlled commands only
+allowed-tools:
+  - Bash(git status)
+  - Bash(git pull)
+  - Bash(npm run build)
+  - Bash(npm run deploy:staging)
+---
+
+# Research skill (isolated in subagent)
+---
+name: research-topic
+description: Research a topic in isolation
+context: fork
+agent: Explore
+allowed-tools: Read, Grep, Glob, WebFetch
+---`,
+    },
+    {
+      title: 'Skill Invocation Control Patterns',
+      titleKo: '스킬 호출 제어 패턴',
+      language: 'text',
+      code: `# How to control who can invoke skills:
+
+1. DEFAULT (both can invoke):
+   ---
+   name: my-skill
+   description: Both user and AI can invoke
+   ---
+
+2. USER-ONLY (manual trigger):
+   ---
+   name: deploy
+   disable-model-invocation: true  # AI cannot auto-invoke
+   ---
+   Use for: deploy, commit, send-message, etc.
+
+3. AI-ONLY (background knowledge):
+   ---
+   name: legacy-context
+   user-invocable: false  # Hidden from / menu
+   ---
+   Use for: context that AI should know but users don't invoke
+
+4. SKILL TOOL PERMISSIONS:
+   In /permissions, add rules like:
+   - Skill(deploy *)   # Allow specific skill
+   - Skill            # Deny all skills (in deny rules)`,
+    },
+    {
+      title: 'Using $ARGUMENTS Placeholder',
+      titleKo: '$ARGUMENTS 플레이스홀더 사용',
+      language: 'yaml',
+      code: `---
+name: fix-issue
+description: Fix a GitHub issue
+argument-hint: "[issue-number]"
+disable-model-invocation: true
+---
+
+Fix GitHub issue $ARGUMENTS following our coding standards:
+1. Read the issue description
+2. Understand the requirements
+3. Implement the fix
+4. Write tests
+5. Create a commit
+
+# Usage: /fix-issue 123
+# $ARGUMENTS becomes: 123
+
+# For multiple arguments:
+---
+name: migrate-component
+description: Migrate component between frameworks
+argument-hint: "[component] [from] [to]"
+---
+
+Migrate the $0 component from $1 to $2.
+# /migrate-component SearchBar React Vue
+# $0 = SearchBar, $1 = React, $2 = Vue`,
+    },
+    {
+      title: 'Dynamic Context with Shell Commands',
+      titleKo: '셸 명령을 통한 동적 컨텍스트',
+      language: 'yaml',
+      code: `---
+name: pr-summary
+description: Summarize a pull request
+context: fork
+agent: Explore
+---
+
+## Pull Request Context
+
+PR diff:
+!\`gh pr diff\`
+
+PR comments:
+!\`gh pr view --comments\`
+
+Changed files:
+!\`gh pr diff --name-only\`
+
+## Your Task
+Summarize this pull request concisely.
+
+# Note: !\`command\` runs BEFORE the skill content is sent to AI
+# The output replaces the placeholder in the prompt`,
+    },
+    {
+      title: 'Important: Official vs Non-official Fields',
+      titleKo: '중요: 공식 필드 vs 비공식 필드',
+      language: 'text',
+      code: `# OFFICIAL FIELDS (Claude Code + Agent Skills Standard)
+
+✅ CLAUDE CODE OFFICIAL FIELDS:
+  - name
+  - description
+  - argument-hint
+  - disable-model-invocation
+  - user-invocable
+  - allowed-tools
+  - model
+  - context
+  - agent
+  - hooks
+
+✅ AGENT SKILLS STANDARD FIELDS:
+  - name
+  - description
+  - license
+  - compatibility
+  - metadata
+  - allowed-tools
+
+❌ NOT IN OFFICIAL DOCUMENTATION:
+  - tools (use allowed-tools instead)
+  - deny-tools (use whitelist with allowed-tools)
+  - intercept (use hooks for lifecycle events)`,
     },
     {
       title: 'Security Notes for YAML Configuration',
@@ -2332,47 +2472,43 @@ intercept:
       language: 'yaml',
       code: `# SECURITY BEST PRACTICES FOR SKILL YAML CONFIGURATION
 
-# 1. Always deny dangerous system commands
-deny_tools:
-  - Bash(rm -rf /*)
-  - Bash(sudo *)
-  - Bash(chmod 777 *)
-  - Bash(curl * | bash)
+# 1. Use WHITELIST approach (allowed-tools)
+# Only specify tools that the skill NEEDS
+---
+name: safe-analyzer
+description: Analyze code safely
+allowed-tools: Read, Grep, Glob
+# All other tools (Bash, Write, etc.) are NOT allowed
+---
 
-# 2. Protect sensitive files from being read or written
-deny_tools:
-  - Read(.env*)
-  - Read(*secret*)
-  - Read(*credential*)
-  - Read(*password*)
-  - Read(id_rsa*)
-  - Write(.env*)
-  - Write(*secret*)
+# 2. Be specific with Bash patterns
+---
+name: git-helper
+description: Git operations only
+allowed-tools:
+  - Bash(git status)
+  - Bash(git log *)
+  - Bash(git diff *)
+  # Bash(git push --force) is NOT allowed
+---
 
-# 3. Use intercept for irreversible operations
-intercept:
-  - tool: Bash
-    pattern: "git push.*--force.*"
-    message: "Force push detected. This can rewrite history. Confirm?"
-  - tool: Bash
-    pattern: "DROP.*"
-    message: "Database DROP operation detected. This is irreversible. Confirm?"
+# 3. Run risky skills in subagent isolation
+---
+name: research-task
+description: Research with isolation
+context: fork
+agent: Explore
+allowed-tools: Read, Grep, Glob, WebFetch
+---
 
-# 4. Scope tools to minimum required
-# BAD: Give access to everything
-tools:
-  - Bash
-  - Read
-  - Write
-
-# GOOD: Limit to what's needed
-tools:
-  - Read
-  - Grep
-  - Glob
-allowed_tools:
-  - Read(src/*)
-  - Grep(src/*)
+# 4. Use disable-model-invocation for dangerous actions
+---
+name: deploy-production
+description: Deploy to production servers
+disable-model-invocation: true  # Must be manually invoked
+allowed-tools:
+  - Bash(npm run deploy:prod)
+---
 
 # 5. Never store secrets in SKILL.md
 # BAD:
@@ -2381,62 +2517,44 @@ allowed_tools:
 # description: Uses API key from environment variable API_KEY`,
     },
     {
-      title: 'allowed_tools vs deny_tools Priority Rules',
-      titleKo: 'allowed_tools와 deny_tools 우선순위 규칙',
+      title: 'allowed-tools Whitelist Pattern Examples',
+      titleKo: 'allowed-tools 화이트리스트 패턴 예제',
       language: 'yaml',
       code: `---
-name: priority-example
-description: Demonstrating allowed/deny priority
+name: whitelist-example
+description: How to use allowed-tools effectively
 
-tools:
-  - Bash
-  - Read
-
-# PRIORITY RULE: deny_tools ALWAYS takes precedence over allowed_tools
-#
-# Evaluation order:
-# 1. Check deny_tools first → if match, BLOCK
-# 2. Check allowed_tools → if match, ALLOW
-# 3. If no allowed_tools defined → ALLOW by default
-# 4. If allowed_tools defined but no match → BLOCK
-
-# Example: Allow all git commands EXCEPT force push
-allowed_tools:
-  - Bash(git *)           # Allow: git status, git commit, git push
-  - Bash(npm install *)   # Allow: npm install <package>
-  - Read(src/*)           # Allow: read any file in src/
-
-deny_tools:
-  - Bash(git push --force*)  # Block: even though git * is allowed
-  - Bash(git push -f *)      # Block: shorthand force push
-  - Bash(git reset --hard*)  # Block: destructive reset
-  - Read(src/*.env)          # Block: even though src/* is allowed
+# Whitelist approach: only these are allowed
+allowed-tools:
+  - Bash(git *)           # git status, git commit, git push
+  - Bash(npm run *)       # npm run build, npm run test
+  - Bash(npm install *)   # npm install lodash
+  - Read                  # Read any file
+  - Read(src/*)           # Read only src/ files
 ---
 
-# EXAMPLE SCENARIOS:
+# HOW IT WORKS:
 #
-# 1. User requests: "git status"
-#    → Check deny_tools: no match
-#    → Check allowed_tools: matches "Bash(git *)"
-#    → ALLOWED ✓
+# 1. If allowed-tools is defined → WHITELIST mode
+#    Only matching patterns are permitted
 #
-# 2. User requests: "git push --force origin main"
-#    → Check deny_tools: matches "Bash(git push --force*)"
-#    → BLOCKED ✗ (deny takes precedence)
+# 2. If allowed-tools is NOT defined → ALLOW ALL
+#    Claude can use any tool
 #
-# 3. User requests: "rm -rf /"
-#    → Check deny_tools: no match
-#    → Check allowed_tools: no match (only git/npm/Read allowed)
-#    → BLOCKED ✗ (not in whitelist)
+# EXAMPLES:
 #
-# 4. User requests: "read src/config.ts"
-#    → Check deny_tools: no match
-#    → Check allowed_tools: matches "Read(src/*)"
-#    → ALLOWED ✓
+# allowed-tools: [Bash(git *), Read]
+#   → git status     ✅ (matches Bash(git *))
+#   → git push       ✅ (matches Bash(git *))
+#   → npm run build  ❌ (not in whitelist)
+#   → rm -rf /       ❌ (not in whitelist)
+#   → Read(any file) ✅ (matches Read)
+#   → Write(file)    ❌ (not in whitelist)
 #
-# 5. User requests: "read src/.env"
-#    → Check deny_tools: matches "Read(src/*.env)"
-#    → BLOCKED ✗ (deny takes precedence)`,
+# allowed-tools: [Read(src/*)]
+#   → Read src/index.ts  ✅ (matches Read(src/*))
+#   → Read package.json  ❌ (not in src/)
+#   → Write src/file.ts  ❌ (Write not allowed)`,
     },
     {
       title: 'compatibility Field Usage',
@@ -2490,6 +2608,7 @@ metadata:
       code: `---
 # ============================================
 # COMPLETE YAML FRONTMATTER REFERENCE
+# Based on official Claude Code + Agent Skills docs
 # ============================================
 
 # REQUIRED FIELDS
@@ -2499,43 +2618,36 @@ description: >                      # string, clear purpose statement
   Multi-line description using
   YAML block scalar syntax.
 
-# OPTIONAL FIELDS
-# ----------------
-tools:                              # list of tool identifiers
-  - Read                            # Built-in: read files
-  - Write                           # Built-in: write files
-  - Edit                            # Built-in: edit files
-  - Bash                            # Built-in: shell commands
-  - Glob                            # Built-in: file patterns
-  - Grep                            # Built-in: content search
-  - WebFetch                        # Built-in: fetch URLs
-  - WebSearch                       # Built-in: web search
-  - NotebookEdit                    # Built-in: Jupyter notebooks
-  - mcp: server-name               # MCP: external server
+# CLAUDE CODE EXTENSION FIELDS
+# ----------------------------
+argument-hint: "[file] [options]"   # Hint shown in autocomplete
+disable-model-invocation: false     # true = user-only invocation
+user-invocable: true                # false = AI-only invocation
+model: claude-sonnet-4-20250514     # Model to use
+context: fork                       # "fork" = run in subagent
+agent: Explore                      # Subagent type (Explore, Plan, etc.)
+# hooks: {...}                      # Skill lifecycle hooks
 
-allowed_tools:                      # list of allowed patterns
-  - ToolName(glob-pattern)          # Whitelist specific uses
+# TOOL RESTRICTIONS (whitelist approach)
+# --------------------------------------
+allowed-tools:                      # Only these tools/patterns allowed
+  - Read                            # Allow Read tool
+  - Grep                            # Allow Grep tool
+  - Glob                            # Allow Glob tool
+  - Bash(git *)                     # Allow git commands only
+  - Bash(npm run *)                 # Allow npm scripts only
 
-deny_tools:                         # list of denied patterns (higher priority)
-  - ToolName(glob-pattern)          # Blacklist specific uses
-
-intercept:                          # list of confirmation rules
-  - tool: ToolName                  # Which tool to intercept
-    pattern: "regex-pattern"        # When to intercept
-    message: "Confirmation prompt"  # What to ask the user
-
-compatibility: >                    # string, 1-500 chars (informational)
+# AGENT SKILLS STANDARD FIELDS
+# ----------------------------
+license: MIT                        # Open source license
+compatibility: >                    # Environment requirements
   claude-code >= 1.0.0,
   node >= 18.0.0
-
 metadata:
   author: Your Name                 # string
   version: 1.0.0                    # semver string
-  category: productivity            # enum: productivity, development, etc.
-  tags: [automation, workflow]      # list of strings (max 10)
-  mcp-server: github                # string
-  documentation: https://...        # URL
-  support: email@example.com        # email or URL
+  category: productivity            # string
+  tags: [automation, workflow]      # list of strings
 ---`,
     },
   ],
@@ -2554,20 +2666,25 @@ description: >
   Comprehensive pull request review bot. Analyzes code changes for
   quality, security, performance, and adherence to project standards.
   Posts structured review comments via GitHub MCP integration.
-tools:
-  - Bash
+
+# Read-only analysis - no modifications allowed
+allowed-tools:
   - Read
   - Grep
   - Glob
-  - mcp: github
-deny_tools:
-  - Bash(git push*)
-  - Bash(git merge*)
-  - Bash(git rebase*)
-intercept:
-  - tool: mcp: github
-    pattern: ".*approve.*"
-    message: "You are about to approve this PR. Please confirm."
+  - Bash(git log *)
+  - Bash(git diff *)
+  - Bash(git show *)
+  - Bash(gh pr view *)
+  - Bash(gh pr diff *)
+
+# User must manually invoke (not auto-triggered)
+disable-model-invocation: true
+
+metadata:
+  author: DevTeam
+  version: 1.0.0
+  category: development
 ---
 
 # PR Review Bot
@@ -2682,28 +2799,25 @@ description: >
   validating schema changes, generating rollback scripts, and applying
   migrations to development databases. Works with Prisma, Knex, and
   raw SQL migration frameworks.
-tools:
-  - Bash
+
+# Whitelist only safe database commands
+allowed-tools:
+  - Bash(npx prisma migrate dev *)
+  - Bash(npx prisma db push *)
+  - Bash(npx knex migrate:make *)
+  - Bash(npx knex migrate:latest)
   - Read
   - Write
   - Glob
   - Grep
-allowed_tools:
-  - Bash(npx prisma *)
-  - Bash(npx knex *)
-  - Bash(psql *)
-  - Bash(mysql *)
-  - Bash(sqlite3 *)
-deny_tools:
-  - Bash(* --production *)
-  - Bash(* DROP DATABASE *)
-intercept:
-  - tool: Bash
-    pattern: ".*migrate.*deploy.*"
-    message: "About to apply migration. This will modify the database schema. Confirm?"
-  - tool: Bash
-    pattern: ".*DROP TABLE.*"
-    message: "WARNING: DROP TABLE detected. This is destructive. Confirm?"
+
+# User must manually trigger migrations
+disable-model-invocation: true
+
+metadata:
+  author: DevOps Team
+  version: 1.0.0
+  category: development
 ---
 
 # Database Migration Generator
@@ -2940,21 +3054,23 @@ description: >
   from git changes, resolves dependency order, and runs tasks
   (build, test, lint) only on affected packages in correct order.
   Supports npm workspaces, yarn workspaces, pnpm workspaces, and Turborepo.
-tools:
-  - Bash
+
+# Whitelist package manager and git commands only
+allowed-tools:
+  - Bash(npm run *)
+  - Bash(yarn *)
+  - Bash(pnpm run *)
+  - Bash(npx turbo *)
+  - Bash(git diff *)
+  - Bash(git log *)
   - Read
   - Glob
   - Grep
-allowed_tools:
-  - Bash(npm *)
-  - Bash(yarn *)
-  - Bash(pnpm *)
-  - Bash(npx turbo *)
-  - Bash(git *)
-  - Bash(node *)
-deny_tools:
-  - Bash(rm -rf *)
-  - Bash(sudo *)
+
+metadata:
+  author: DevOps Team
+  version: 1.0.0
+  category: development
 ---
 
 # Monorepo Task Runner
@@ -3026,20 +3142,25 @@ description: >
   OWASP Top 10 automated security validation and dependency vulnerability
   scanning. Generates detailed reports in Markdown, JSON, and HTML formats.
   Integrates with CI/CD pipelines for continuous security monitoring.
-tools:
-  - Bash
+
+# Whitelist only security scanning commands
+allowed-tools:
+  - Bash(safety check *)
+  - Bash(npm audit *)
+  - Bash(bandit *)
+  - Bash(bundle audit *)
   - Read
   - Write
   - Grep
   - Glob
-deny_tools:
-  - Bash(rm -rf*)
-  - Bash(sudo*)
-  - Write(/etc/*)
+
+# User must manually invoke security audits
+disable-model-invocation: true
+
+license: MIT
 metadata:
   version: "1.2.0"
   category: security
-  license: MIT
   tags: [security, owasp, audit, vulnerability-scan]
 ---
 
@@ -3180,17 +3301,19 @@ description: >
   End-to-End testing automation with Playwright/Cypress. Captures screenshots,
   videos, and traces on failure. Sends Slack notifications with test results
   and failure diagnostics. Supports parallel execution across browsers.
-tools:
-  - Bash
+
+# Whitelist only test execution commands
+allowed-tools:
+  - Bash(npx playwright test *)
+  - Bash(npx cypress run *)
+  - Bash(npm run test:e2e *)
   - Read
   - Write
-  - mcp: slack
-deny_tools:
-  - Bash(rm -rf test-results/*)
+
+license: MIT
 metadata:
   version: "2.1.0"
   category: testing
-  license: MIT
   tags: [e2e, playwright, cypress, testing, automation]
 ---
 
