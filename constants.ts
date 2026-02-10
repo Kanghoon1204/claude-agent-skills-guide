@@ -105,3 +105,26 @@ export function pathToKey(path: string): string {
   const slug = path.replace('/sections/', '');
   return slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }
+
+// Map of chapter keys to their first section (for displaying chapter illustrations)
+export const CHAPTER_FIRST_SECTIONS: Record<string, string> = {
+  introduction: 'whatAreSkills',
+  fundamentals: 'whatIsASkill',
+  planningAndDesign: 'useCases',
+  testingAndIteration: 'testingApproaches',
+  distributionAndSharing: 'distributionModel',
+  patternsAndTroubleshooting: 'skillPatterns',
+  resourcesAndReferences: 'officialDocs',
+  appendices: 'quickChecklist',
+};
+
+// Chapter illustration image paths
+export const CHAPTER_ILLUSTRATIONS: Record<string, string> = {
+  introduction: '/images/chapters/cover.png',
+  fundamentals: '/images/chapters/fundamentals.png',
+  planningAndDesign: '/images/chapters/planning-and-design.png',
+  testingAndIteration: '/images/chapters/testing-and-iteration.png',
+  distributionAndSharing: '/images/chapters/distribution-and-sharing.png',
+  patternsAndTroubleshooting: '/images/chapters/patterns-and-troubleshooting.png',
+  resourcesAndReferences: '/images/chapters/resources-and-references.png',
+};
