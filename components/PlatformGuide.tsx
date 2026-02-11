@@ -20,17 +20,17 @@ interface PlatformGuideContent {
 
 const PLATFORM_GUIDES: Record<Platform, PlatformGuideContent> = {
   claude: {
-    title: 'Claude Code skill-creator',
+    title: 'Claude skill-creator',
     available: true,
     tool: 'skill-creator 스킬',
-    description: 'Claude Code에 내장된 공식 스킬 생성 도구입니다. 자연어로 원하는 스킬을 설명하면 올바른 형식의 SKILL.md 파일을 자동으로 생성해줍니다.',
+    description: 'Anthropic 공식 스킬 저장소에서 제공하는 스킬 생성 도구입니다. Claude.ai에서는 Settings > Capabilities > Skills에서 활성화할 수 있고, Claude Code에서는 플러그인으로 설치하거나 직접 대화로 스킬 생성을 요청할 수 있습니다.',
     steps: [
-      'Claude Code를 실행합니다',
-      '아래 예시처럼 skill-creator를 호출합니다',
-      '질문에 답변하며 스킬을 정의합니다',
-      '생성된 SKILL.md를 검토하고 저장합니다',
+      'Claude.ai: Settings > Capabilities > Skills에서 skill-creator 활성화',
+      'Claude Code: 대화에서 스킬 생성을 자연어로 요청',
+      '질문에 답변하며 스킬의 목적과 동작을 정의합니다',
+      '생성된 SKILL.md를 ~/.claude/skills/ 또는 프로젝트의 .claude/skills/에 저장합니다',
     ],
-    examplePrompt: 'Help me build a skill using skill-creator. I want a skill that reviews my code for security vulnerabilities.',
+    examplePrompt: 'I want to create a skill that reviews my code for security vulnerabilities. It should check for OWASP Top 10 issues and suggest fixes.',
     exampleResponse: `I'll help you create a security review skill. Let me ask a few questions:
 
 1. What languages/frameworks should this focus on?
@@ -39,36 +39,37 @@ const PLATFORM_GUIDES: Record<Platform, PlatformGuideContent> = {
 
 Based on your answers, I'll generate a SKILL.md file...`,
     tips: [
-      '기존 스킬을 리뷰하려면: "Review this skill and suggest improvements"',
-      '스킬을 개선하려면: "Use the issues in this chat to improve the skill"',
-      '간단한 스킬부터 시작해서 점진적으로 복잡하게 만드세요',
+      'Claude.ai에서 skill-creator 스킬을 활성화하면 대화형으로 스킬을 만들 수 있습니다',
+      'Claude Code에서는 "I want to create a skill for..."라고 요청하면 됩니다',
+      '기존 스킬 리뷰: "Review this skill and suggest improvements"',
+      'GitHub: github.com/anthropics/skills에서 예제 스킬을 참고하세요',
     ],
-    docUrl: 'https://docs.anthropic.com/en/docs/claude-code/skills',
+    docUrl: 'https://code.claude.com/docs/en/skills',
   },
   codex: {
     title: 'Codex $skill-creator',
     available: true,
-    tool: '$skill-creator + /init',
-    description: 'Codex CLI에는 시스템 스킬로 $skill-creator가 내장되어 있습니다. 또한 /init 명령으로 AGENTS.md 스캐폴드를 생성할 수 있습니다.',
+    tool: '$skill-creator',
+    description: 'Codex CLI에 시스템 스킬로 내장되어 있습니다. 대화형으로 스킬을 정의하면 올바른 형식의 SKILL.md를 자동 생성합니다.',
     steps: [
       'Codex CLI를 실행합니다',
       '채팅에서 $skill-creator를 입력합니다',
-      '프롬프트에 따라 스킬을 정의합니다',
-      '생성된 SKILL.md 또는 AGENTS.md를 저장합니다',
+      '프롬프트에 따라 스킬의 목적과 동작을 정의합니다',
+      '생성된 SKILL.md를 확인하고 저장합니다',
     ],
     command: '$skill-creator',
-    examplePrompt: '$skill-creator\n\n나는 코드 리뷰를 자동화하는 스킬을 만들고 싶어. PR이 올라오면 보안 취약점과 성능 이슈를 체크해줬으면 해.',
+    examplePrompt: '$skill-creator\n\n코드 리뷰를 자동화하는 스킬을 만들고 싶어. PR이 올라오면 보안 취약점과 성능 이슈를 체크해줬으면 해.',
     exampleResponse: `스킬을 만들어 드리겠습니다. 몇 가지 질문이 있습니다:
 
 1. 어떤 언어를 주로 사용하시나요?
 2. 특정 보안 규칙(OWASP 등)을 적용할까요?
-3. GitHub Actions와 연동이 필요한가요?
+3. 스크립트가 필요한가요, 아니면 텍스트 지시사항만으로 충분한가요?
 
 답변을 바탕으로 SKILL.md를 생성하겠습니다...`,
     tips: [
-      '/init 명령으로 프로젝트에 AGENTS.md 스캐폴드를 생성할 수 있습니다',
-      '$skill-installer로 스킬 카탈로그에서 기존 스킬을 설치할 수 있습니다',
-      '스킬은 ~/.codex/skills/ 또는 프로젝트의 .codex/skills/에 저장됩니다',
+      '$skill-installer로 공식 스킬 카탈로그에서 기존 스킬을 설치할 수 있습니다',
+      '스킬 저장 위치: ~/.agents/skills/ (사용자), .agents/skills/ (프로젝트)',
+      'AGENTS.md는 프로젝트 루트에 두면 자동으로 인식됩니다',
     ],
     docUrl: 'https://developers.openai.com/codex/skills',
   },
@@ -76,42 +77,42 @@ Based on your answers, I'll generate a SKILL.md file...`,
     title: 'Cursor /Generate Cursor Rules',
     available: true,
     tool: '/Generate Cursor Rules (v0.49+)',
-    description: 'Cursor v0.49부터 추가된 기능입니다. Agent 모드에서 코드베이스를 분석하여 맞춤형 규칙을 자동으로 생성합니다.',
+    description: 'Cursor v0.49부터 추가된 기능입니다. 대화 내용을 바탕으로 코드베이스에 맞는 규칙을 자동 생성합니다. "turn this into a rule"과 같은 자연어로도 호출할 수 있습니다.',
     steps: [
-      'Cursor를 열고 Agent 모드를 활성화합니다',
-      '채팅창에 /Generate Cursor Rules를 입력합니다',
-      'Cursor가 코드베이스를 분석하고 규칙을 생성합니다',
-      '생성된 규칙을 .cursorrules 또는 .cursor/rules/에 저장합니다',
+      'Cursor에서 AI와 대화하며 원하는 코딩 스타일/규칙을 설명합니다',
+      '채팅에서 /Generate Cursor Rules를 입력하거나 "turn this into a rule"이라고 요청합니다',
+      'Cursor가 대화 내용과 코드베이스를 분석하여 규칙을 생성합니다',
+      '생성된 규칙을 .cursor/rules/*.mdc에 저장합니다',
     ],
     command: '/Generate Cursor Rules',
-    examplePrompt: '/Generate Cursor Rules\n\n이 React 프로젝트에 맞는 코딩 규칙을 생성해줘.',
-    exampleResponse: `코드베이스를 분석하고 있습니다...
+    examplePrompt: '이 프로젝트에서는 TypeScript strict mode를 사용하고, React hooks는 use 접두사를 붙여야 해. 컴포넌트는 함수형으로만 작성해줘.\n\n/Generate Cursor Rules',
+    exampleResponse: `대화 내용을 분석하고 있습니다...
 
 다음 규칙들을 생성했습니다:
-- TypeScript strict mode 사용
-- React hooks 네이밍 컨벤션
-- 컴포넌트 파일 구조
-- API 호출 패턴
-- 에러 핸들링 가이드라인
+- TypeScript strict mode 필수
+- React hooks는 use 접두사 사용
+- 함수형 컴포넌트만 사용
+- Props 타입은 interface로 정의
 
-.cursor/rules/react-conventions.mdc에 저장할까요?`,
+.cursor/rules/react-typescript.mdc에 저장할까요?`,
     tips: [
-      'Claude 3.7 thinking 모델을 사용하면 더 좋은 결과를 얻을 수 있습니다',
-      '생성된 규칙이 완벽하지 않을 수 있으니 검토 후 수정하세요',
-      '규칙을 업데이트하려면 Agent에게 "규칙 파일을 수정해줘"라고 요청하세요',
+      'Claude 3.7 thinking 모델에서 가장 좋은 결과를 보입니다',
+      '처음 생성된 규칙이 완벽하지 않을 수 있습니다 - 추가 대화로 보완하세요',
+      '규칙 업데이트: "이 규칙 파일을 수정해줘"라고 Agent에게 요청',
+      '규칙은 .cursor/rules/ 폴더에 .mdc 확장자로 저장됩니다',
     ],
-    docUrl: 'https://docs.cursor.com/context/rules-for-ai',
+    docUrl: 'https://cursor.com/docs',
   },
   windsurf: {
-    title: 'Windsurf Cascade 워크플로우 생성',
+    title: 'Windsurf 워크플로우 & 규칙',
     available: true,
     tool: 'Cascade에게 요청',
-    description: 'Windsurf는 전용 명령어가 아닌 Cascade AI에게 직접 요청하여 워크플로우를 생성합니다. CLI 작업이 포함된 워크플로우에 특히 효과적입니다.',
+    description: 'Windsurf는 세 가지 개념을 구분합니다: Workflows(작업 자동화), Rules(행동 지침), Memories(자동 컨텍스트). 전용 명령어는 없지만 Cascade에게 자연어로 생성을 요청할 수 있습니다.',
     steps: [
-      'Windsurf에서 Cascade 채팅을 엽니다',
-      '"Help me create a workflow for..."라고 요청합니다',
-      'Cascade가 워크플로우를 생성합니다',
-      '.windsurf/workflows/에 저장합니다',
+      'Cascade 채팅을 엽니다',
+      '워크플로우: "Help me create a workflow for..."라고 요청',
+      '규칙: .windsurf/rules/ 폴더에 직접 마크다운 파일을 작성',
+      '워크플로우는 /워크플로우이름으로 호출, 규칙은 자동 적용',
     ],
     examplePrompt: 'Help me create a workflow for deploying my Next.js app to Vercel. Include build verification and rollback steps.',
     exampleResponse: `워크플로우를 생성하겠습니다:
@@ -127,13 +128,14 @@ Based on your answers, I'll generate a SKILL.md file...`,
 
 .windsurf/workflows/deploy-to-vercel.md에 저장할까요?`,
     tips: [
-      'Memories는 규칙 생성 도구가 아닙니다 - Cascade가 대화 중 컨텍스트를 자동 저장하는 기능입니다',
-      '규칙(Rules)은 .windsurf/rules/에, 워크플로우는 .windsurf/workflows/에 저장됩니다',
-      'CLI 도구를 사용하는 반복 작업에 워크플로우가 특히 유용합니다',
+      'Memories ≠ 규칙 생성 도구! Cascade가 대화 중 중요한 컨텍스트를 자동 저장하는 기능입니다',
+      'Rules = 행동 지침 (.windsurf/rules/), Workflows = 작업 자동화 (.windsurf/workflows/)',
+      '워크플로우는 CLI 작업 자동화에 특히 효과적입니다',
+      '규칙에는 Manual, Always On, Model Decision 등 활성화 모드가 있습니다',
     ],
     limitations: [
-      '전용 규칙 생성 명령어가 없습니다',
-      'Rules와 Workflows는 별개의 개념입니다',
+      '전용 규칙 생성 명령어가 없습니다 - 직접 작성하거나 Cascade에게 요청',
+      '자동 생성되는 Memories는 규칙이 아닌 컨텍스트 저장용입니다',
     ],
     docUrl: 'https://docs.windsurf.com/windsurf/cascade/workflows',
   },
@@ -153,7 +155,7 @@ Based on your answers, I'll generate a SKILL.md file...`,
       'Claude Code의 SKILL.md 형식과 호환됩니다 (YAML frontmatter 사용)',
       'Agent Skills 오픈 표준을 따르므로 다른 플랫폼 스킬을 참고할 수 있습니다',
     ],
-    docUrl: 'https://antigravity.google/docs/skills',
+    docUrl: 'https://codelabs.developers.google.com/getting-started-with-antigravity-skills',
   },
 };
 
