@@ -140,37 +140,32 @@ export function getPlatformTerms(platform: Platform) {
 
 /**
  * Deep replace platform text in an object (for content objects)
- * Skips comparison table rows to preserve fixed platform names
+ * Skips comparison table data entirely to preserve fixed platform names and comparisons
  */
-export function deepReplacePlatformText<T>(obj: T, platform: Platform, skipComparison = false): T {
+export function deepReplacePlatformText<T>(obj: T, platform: Platform, skipTransform = false): T {
+  // If skipTransform is true, return object as-is (for comparison table data)
+  if (skipTransform) {
+    return obj;
+  }
+
   if (typeof obj === 'string') {
     return replacePlatformText(obj, platform) as T;
   }
 
   if (Array.isArray(obj)) {
-    // If this is comparison rows (array of arrays with platform names in first column), skip first column
-    if (skipComparison && obj.length > 0 && Array.isArray(obj[0])) {
-      return obj.map(row => {
-        if (Array.isArray(row)) {
-          // Keep first column (platform name) unchanged, transform the rest
-          return [row[0], ...row.slice(1).map(cell => deepReplacePlatformText(cell, platform, false))];
-        }
-        return deepReplacePlatformText(row, platform, false);
-      }) as T;
-    }
-    return obj.map(item => deepReplacePlatformText(item, platform, skipComparison)) as T;
+    return obj.map(item => deepReplacePlatformText(item, platform, false)) as T;
   }
 
   if (obj && typeof obj === 'object') {
     const result: any = {};
     for (const key of Object.keys(obj)) {
-      // Skip transformation for comparison data rows (preserve platform names in tables)
-      const shouldSkipComparison = key === 'data' && (obj as any).type === 'comparison';
-      const isComparisonRows = key === 'rows' && skipComparison;
+      // Skip transformation for entire comparison data block (preserve all platform names in tables)
+      // Comparison tables contain fixed data that should not be transformed
+      const isComparisonData = key === 'data' && (obj as any).type === 'comparison';
       result[key] = deepReplacePlatformText(
         (obj as any)[key],
         platform,
-        shouldSkipComparison || isComparisonRows
+        isComparisonData
       );
     }
     return result as T;

@@ -87,9 +87,9 @@ export const translations: {
               { label: '항상 같은 퀄리티예요 (일관성)', desc: '어제 만든 보고서랑 오늘 만든 보고서 품질이 달라서 곤란했던 적 있죠? 스킬을 쓰면 항상 같은 형식, 같은 품질이에요.' },
               { label: '팀원이랑 나눠 쓸 수 있어요 (공유)', desc: '내가 만든 좋은 스킬을 팀원들한테 공유할 수 있어요. 파일 하나만 보내면 끝!' },
               { label: '외부 도구랑 연결돼요 (확장성)', desc: 'GitHub, Slack, 데이터베이스 같은 외부 서비스와 연결해서 더 강력하게 쓸 수 있어요.' },
-              { label: '어디서든 똑같이 작동해요 (이식성)', desc: 'Claude.ai에서 만든 스킬이 Claude Code에서도 똑같이 작동해요. 옮길 필요 없어요!' },
+              { label: '어디서든 똑같이 작동해요 (이식성)', desc: '웹에서 만든 스킬이 CLI에서도 똑같이 작동해요. 환경을 옮겨도 수정할 필요 없어요!' },
             ]},
-            { type: 'image', src: '/images/inline/skill-ecosystem.svg', alt: '스킬 에코시스템', caption: '스킬은 어디서든 똑같이 동작해요 - Claude.ai, Claude Code, API 다 OK!' },
+            { type: 'image', src: '/images/inline/skill-ecosystem.svg', alt: '스킬 에코시스템', caption: '스킬은 어디서든 똑같이 동작해요 - 웹, CLI, API 다 OK!' },
           ],
         },
         {
@@ -1875,7 +1875,7 @@ class SkillIntegrationTest:
         '플랫폼별 스킬 파일 형식의 차이를 이해합니다',
         '도구 선택과 지시사항 작성을 실습합니다',
       ],
-      body: '이론을 배웠으니 이제 직접 스킬을 만들어볼 차례입니다! 아래 위저드를 사용하면 단계별로 스킬을 구성하고, 완성된 YAML 파일을 바로 복사할 수 있습니다.\n\n현재 선택된 플랫폼에 맞는 형식으로 스킬 파일이 생성됩니다. Claude Code, Cursor, Codex, Windsurf, Antigravity 등 다양한 플랫폼을 지원합니다.',
+      body: '이론을 배웠으니 이제 직접 스킬을 만들어볼 차례입니다! 아래 위저드를 사용하면 단계별로 스킬을 구성하고, 완성된 YAML 파일을 바로 복사할 수 있습니다.\n\n현재 선택된 플랫폼에 맞는 형식으로 스킬 파일이 생성됩니다. 상단의 플랫폼 선택기에서 원하는 플랫폼을 선택하세요.',
       subsections: [
         {
           title: '플랫폼별 내장 생성 도구',
