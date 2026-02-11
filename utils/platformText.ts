@@ -6,6 +6,7 @@ import { Platform } from '../context/PlatformContext';
 // - Cursor: https://docs.cursor.com/context/rules-for-ai
 // - Codex: https://developers.openai.com/codex/guides/agents-md/
 // - Windsurf: https://docs.windsurf.com/windsurf/cascade/workflows
+// - Antigravity: https://antigravity.google/docs/skills
 const PLATFORM_TERMS: Record<Platform, {
   name: string;
   fullName: string;
@@ -50,6 +51,15 @@ const PLATFORM_TERMS: Record<Platform, {
     globalPath: 'global_rules.md (전역)',
     projectPath: '.windsurfrules (루트) 또는 .windsurf/rules/*.md',
     webInterface: 'Windsurf Settings > Rules',
+  },
+  antigravity: {
+    name: 'Antigravity',
+    fullName: 'Google Antigravity',
+    skillFile: 'SKILL.md',
+    skillFolder: '.agent/skills',
+    globalPath: '~/.gemini/antigravity/skills/<name>/SKILL.md',
+    projectPath: '.agent/skills/<name>/SKILL.md',
+    webInterface: 'Antigravity IDE',
   },
 };
 

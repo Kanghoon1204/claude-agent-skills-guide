@@ -1,6 +1,6 @@
 import React, { createContext, useState, useCallback, useMemo } from 'react';
 
-export type Platform = 'claude' | 'cursor' | 'codex' | 'windsurf';
+export type Platform = 'claude' | 'cursor' | 'codex' | 'windsurf' | 'antigravity';
 
 export interface PlatformInfo {
   id: Platform;
@@ -33,6 +33,12 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
     name: 'Windsurf',
     description: 'Codeium Windsurf IDE',
     color: '#8B5CF6', // purple
+  },
+  antigravity: {
+    id: 'antigravity',
+    name: 'Antigravity',
+    description: 'Google Antigravity IDE',
+    color: '#EA4335', // Google red
   },
 };
 

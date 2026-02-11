@@ -26,6 +26,11 @@ const PlatformIcon: React.FC<{ platform: Platform; className?: string }> = ({ pl
         <path d="M3 17h18M5 12l7-7 7 7M12 5v12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
+    antigravity: (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4zm0 4a3 3 0 110 6 3 3 0 010-6z" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
   };
   return <>{icons[platform]}</>;
 };
