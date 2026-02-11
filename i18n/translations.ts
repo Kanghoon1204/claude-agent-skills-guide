@@ -1880,18 +1880,19 @@ class SkillIntegrationTest:
         {
           title: '플랫폼별 내장 생성 도구',
           blocks: [
-            { type: 'paragraph', content: '대부분의 AI 코딩 플랫폼은 채팅이나 명령어를 통해 스킬/규칙을 자동 생성하는 내장 도구를 제공합니다. 아래에서 각 플랫폼의 생성 방법을 확인하세요.' },
+            { type: 'paragraph', content: '각 AI 코딩 플랫폼은 스킬/규칙을 생성하는 고유한 방법을 제공합니다. 플랫폼마다 기능 수준이 다르므로, 아래 표에서 상세 내용을 확인하세요.' },
             { type: 'comparison', data: {
-              headers: ['플랫폼', '내장 생성 도구', '사용 방법'],
+              headers: ['플랫폼', '내장 생성 도구', '사용 방법', '특징'],
               rows: [
-                ['Claude Code', 'skill-creator 스킬', '"Help me build a skill using skill-creator"라고 대화'],
-                ['Codex', '$skill-creator 명령어', '채팅에서 $skill-creator 입력 후 질문에 답변'],
-                ['Cursor', '/Generate Cursor Rules', '채팅에서 /Generate Cursor Rules 입력'],
-                ['Windsurf', 'Rulebooks & Memories', 'Cascade가 중요 컨텍스트를 자동으로 Memories에 저장'],
-                ['Antigravity', '수동 생성', '아래 위저드를 사용하거나 직접 SKILL.md 작성'],
+                ['Claude Code', 'skill-creator 스킬', '"Help me build a skill using skill-creator"', '자연어로 설명하면 SKILL.md 자동 생성. 기존 스킬 리뷰 및 개선도 지원'],
+                ['Codex', '$skill-creator + /init', '채팅에서 $skill-creator 입력, 또는 /init으로 AGENTS.md 스캐폴드 생성', '시스템 스킬로 내장. $skill-installer로 스킬 카탈로그에서 설치도 가능'],
+                ['Cursor', '/Generate Cursor Rules (v0.49+)', 'Agent 모드에서 /Generate Cursor Rules 입력', '코드베이스를 분석해 맞춤 규칙 생성. Claude 3.7 thinking 모델에서 최적'],
+                ['Windsurf', 'Cascade에게 요청', '"Help me create a workflow for..."라고 Cascade에게 요청', 'CLI 작업 워크플로우 생성에 효과적. Memories는 자동 컨텍스트 저장 (규칙 생성 아님)'],
+                ['Antigravity', '없음 (수동 생성)', '아래 위저드 사용 또는 SKILL.md 직접 작성', '아직 내장 생성 도구 없음. 이 위저드를 활용하세요'],
               ],
             }},
-            { type: 'tip', content: '💡 내장 도구를 사용하면 더 빠르고 정확하게 스킬을 생성할 수 있습니다. 하지만 아래 위저드를 사용하면 모든 플랫폼에서 동일한 방식으로 스킬을 생성할 수 있어 학습에 유용합니다.' },
+            { type: 'note', content: 'Windsurf의 Memories는 Cascade가 대화 중 중요한 컨텍스트를 자동 저장하는 기능으로, 규칙을 생성하는 도구가 아닙니다. 규칙 생성은 Cascade에게 직접 요청해야 합니다.' },
+            { type: 'tip', content: '💡 내장 도구가 있어도 이 위저드를 사용하면 좋습니다: 1) 플랫폼별 형식 차이를 한눈에 비교 가능, 2) 오프라인에서도 사용 가능, 3) 스킬 구조를 직접 이해하며 학습 가능' },
           ],
         },
         {
