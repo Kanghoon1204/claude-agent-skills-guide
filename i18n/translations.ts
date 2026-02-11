@@ -1894,6 +1894,7 @@ class SkillIntegrationTest:
             { type: 'note', content: 'Windsurf의 Memories는 Cascade가 대화 중 중요한 컨텍스트를 자동 저장하는 기능으로, 규칙을 생성하는 도구가 아닙니다. 규칙 생성은 Cascade에게 직접 요청해야 합니다.' },
             { type: 'paragraph', content: '아래에서 현재 선택된 플랫폼의 상세 사용법을 확인하세요:' },
             { type: 'platformGuide' },
+            { type: 'platformDocs' },
             { type: 'tip', content: '내장 도구가 있어도 이 위저드를 사용하면 좋습니다: 1) 플랫폼별 형식 차이를 한눈에 비교 가능, 2) 오프라인에서도 사용 가능, 3) 스킬 구조를 직접 이해하며 학습 가능' },
           ],
         },
