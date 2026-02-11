@@ -16,12 +16,13 @@ import AudioPlayer from '../components/AudioPlayer';
 import Breadcrumb from '../components/Breadcrumb';
 import SkillCreatorWizard from '../components/SkillCreatorWizard';
 import PlatformBanner from '../components/PlatformBanner';
+import PlatformGuide from '../components/PlatformGuide';
 import { usePlatform } from '../hooks/usePlatform';
 import { deepReplacePlatformText } from '../utils/platformText';
 
 // Block type definitions for new content structure
 interface ContentBlock {
-  type: 'paragraph' | 'diagram' | 'items' | 'tip' | 'warning' | 'note' | 'good' | 'bad' | 'code' | 'comparison' | 'image' | 'wizard';
+  type: 'paragraph' | 'diagram' | 'items' | 'tip' | 'warning' | 'note' | 'good' | 'bad' | 'code' | 'comparison' | 'image' | 'wizard' | 'platformGuide';
   content?: string;
   diagramId?: string;
   codeId?: string;
@@ -143,6 +144,13 @@ const SectionPage: React.FC = () => {
         return (
           <div key={index} className="my-8">
             <SkillCreatorWizard />
+          </div>
+        );
+
+      case 'platformGuide':
+        return (
+          <div key={index}>
+            <PlatformGuide />
           </div>
         );
 
