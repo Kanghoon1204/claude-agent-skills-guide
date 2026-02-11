@@ -12,54 +12,66 @@ const PLATFORM_TERMS: Record<Platform, {
   fullName: string;
   skillFile: string;
   skillFolder: string;
+  globalDir: string;
   globalPath: string;
   projectPath: string;
   webInterface: string;
+  configFile: string;
 }> = {
   claude: {
     name: 'Claude',
     fullName: 'Claude Code',
     skillFile: 'SKILL.md',
     skillFolder: '.claude/skills',
+    globalDir: '~/.claude/skills',
     globalPath: '~/.claude/skills/<name>/SKILL.md',
     projectPath: '.claude/skills/<name>/SKILL.md',
     webInterface: 'Claude.ai > 설정 > Capabilities > Skills',
+    configFile: '~/.claude/mcp.json',
   },
   cursor: {
     name: 'Cursor',
     fullName: 'Cursor AI',
     skillFile: '.cursorrules',
     skillFolder: '.cursor/rules',
+    globalDir: '~/.cursor/rules',
     globalPath: '~/.cursor/rules/<name>.mdc (또는 전역 설정)',
     projectPath: '.cursorrules (루트) 또는 .cursor/rules/*.mdc',
     webInterface: 'Cursor Settings > Rules for AI',
+    configFile: '~/.cursor/mcp.json',
   },
   codex: {
     name: 'Codex',
     fullName: 'OpenAI Codex CLI',
     skillFile: 'AGENTS.md',
     skillFolder: '',
+    globalDir: '~/.codex',
     globalPath: '~/.codex/AGENTS.md',
     projectPath: 'AGENTS.md (프로젝트 루트)',
     webInterface: 'Codex CLI',
+    configFile: '~/.codex/config.json',
   },
   windsurf: {
     name: 'Windsurf',
     fullName: 'Windsurf IDE',
     skillFile: '.windsurfrules',
     skillFolder: '.windsurf/rules',
+    globalDir: '~/.windsurf/rules',
     globalPath: 'global_rules.md (전역)',
     projectPath: '.windsurfrules (루트) 또는 .windsurf/rules/*.md',
     webInterface: 'Windsurf Settings > Rules',
+    configFile: '~/.windsurf/mcp.json',
   },
   antigravity: {
     name: 'Antigravity',
     fullName: 'Google Antigravity',
     skillFile: 'SKILL.md',
     skillFolder: '.agent/skills',
+    globalDir: '~/.gemini/antigravity/skills',
     globalPath: '~/.gemini/antigravity/skills/<name>/SKILL.md',
     projectPath: '.agent/skills/<name>/SKILL.md',
     webInterface: 'Antigravity IDE',
+    configFile: '~/.gemini/settings.json',
   },
 };
 
@@ -76,15 +88,25 @@ export function replacePlatformText(text: string, platform: Platform): string {
     return result;
   }
 
-  // Replace specific patterns
+  // Replace specific patterns - ORDER MATTERS! More specific patterns first.
   const replacements: [RegExp, string][] = [
-    // File and path names
-    [/SKILL\.md/g, terms.skillFile],
-    [/\.claude\/skills/g, terms.skillFolder],
-    [/~\/\.claude\/skills\/<name>\/SKILL\.md/g, terms.globalPath],
-    [/\.claude\/skills\/<name>\/SKILL\.md/g, terms.projectPath],
+    // 1. Global paths first (more specific) - must come before project paths
+    // ~/.claude/skills/ → platform global dir (e.g., ~/.gemini/antigravity/skills/)
+    [/~\/\.claude\/skills\//g, `${terms.globalDir}/`],
+    [/~\/\.claude\/skills(?![\/\w])/g, terms.globalDir],
 
-    // Product names (be careful with order)
+    // 2. Config file paths
+    [/~\/\.claude\/mcp\.json/g, terms.configFile],
+
+    // 3. Project paths (less specific)
+    // .claude/skills/ → platform skill folder (e.g., .agent/skills/)
+    [/\.claude\/skills\//g, `${terms.skillFolder}/`],
+    [/\.claude\/skills(?![\/\w])/g, terms.skillFolder],
+
+    // 4. Skill file names
+    [/SKILL\.md/g, terms.skillFile],
+
+    // 5. Product names (be careful with order)
     [/Claude Code/g, terms.fullName],
     [/Claude\.ai/g, terms.webInterface.split(' >')[0]],
     [/Claude한테/g, `${terms.name}한테`],
@@ -98,7 +120,7 @@ export function replacePlatformText(text: string, platform: Platform): string {
     [/Claude 환경/g, `${terms.name} 환경`],
     [/Claude 스킬/g, `${terms.name} 스킬`],
 
-    // Generic Claude mentions (last, to catch remaining)
+    // 6. Generic Claude mentions (last, to catch remaining)
     [/\bClaude\b(?![\.\-])/g, terms.name],
   ];
 
