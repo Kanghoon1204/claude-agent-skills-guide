@@ -1878,10 +1878,20 @@ class SkillIntegrationTest:
       body: '이론을 배웠으니 이제 직접 스킬을 만들어볼 차례입니다! 아래 위저드를 사용하면 단계별로 스킬을 구성하고, 완성된 YAML 파일을 바로 복사할 수 있습니다.\n\n현재 선택된 플랫폼에 맞는 형식으로 스킬 파일이 생성됩니다. Claude Code, Cursor, Codex, Windsurf, Antigravity 등 다양한 플랫폼을 지원합니다.',
       subsections: [
         {
-          title: 'Claude Code 사용자를 위한 팁',
+          title: '플랫폼별 내장 생성 도구',
           blocks: [
-            { type: 'tip', content: '💬 Claude Code를 사용 중이라면 더 쉬운 방법이 있습니다! Claude Code에는 채팅 형식으로 스킬을 직접 생성해주는 내장 skill-creator 기능이 있습니다. "Help me build a skill using skill-creator"라고 대화하면 Claude가 자연어 설명을 바탕으로 스킬을 자동 생성해줍니다. 이전 섹션의 "스킬 크리에이터 도구"를 참고하세요.' },
-            { type: 'note', content: '다른 플랫폼(Cursor, Codex, Windsurf, Antigravity)을 사용 중이라면 아래 위저드를 활용해 수동으로 스킬을 생성하세요. 각 플랫폼에 맞는 형식으로 파일이 생성됩니다.' },
+            { type: 'paragraph', content: '대부분의 AI 코딩 플랫폼은 채팅이나 명령어를 통해 스킬/규칙을 자동 생성하는 내장 도구를 제공합니다. 아래에서 각 플랫폼의 생성 방법을 확인하세요.' },
+            { type: 'comparison', data: {
+              headers: ['플랫폼', '내장 생성 도구', '사용 방법'],
+              rows: [
+                ['Claude Code', 'skill-creator 스킬', '"Help me build a skill using skill-creator"라고 대화'],
+                ['Codex', '$skill-creator 명령어', '채팅에서 $skill-creator 입력 후 질문에 답변'],
+                ['Cursor', '/Generate Cursor Rules', '채팅에서 /Generate Cursor Rules 입력'],
+                ['Windsurf', 'Rulebooks & Memories', 'Cascade가 중요 컨텍스트를 자동으로 Memories에 저장'],
+                ['Antigravity', '수동 생성', '아래 위저드를 사용하거나 직접 SKILL.md 작성'],
+              ],
+            }},
+            { type: 'tip', content: '💡 내장 도구를 사용하면 더 빠르고 정확하게 스킬을 생성할 수 있습니다. 하지만 아래 위저드를 사용하면 모든 플랫폼에서 동일한 방식으로 스킬을 생성할 수 있어 학습에 유용합니다.' },
           ],
         },
         {
