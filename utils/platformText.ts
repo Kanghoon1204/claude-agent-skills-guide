@@ -140,20 +140,38 @@ export function getPlatformTerms(platform: Platform) {
 
 /**
  * Deep replace platform text in an object (for content objects)
+ * Skips comparison table rows to preserve fixed platform names
  */
-export function deepReplacePlatformText<T>(obj: T, platform: Platform): T {
+export function deepReplacePlatformText<T>(obj: T, platform: Platform, skipComparison = false): T {
   if (typeof obj === 'string') {
     return replacePlatformText(obj, platform) as T;
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => deepReplacePlatformText(item, platform)) as T;
+    // If this is comparison rows (array of arrays with platform names in first column), skip first column
+    if (skipComparison && obj.length > 0 && Array.isArray(obj[0])) {
+      return obj.map(row => {
+        if (Array.isArray(row)) {
+          // Keep first column (platform name) unchanged, transform the rest
+          return [row[0], ...row.slice(1).map(cell => deepReplacePlatformText(cell, platform, false))];
+        }
+        return deepReplacePlatformText(row, platform, false);
+      }) as T;
+    }
+    return obj.map(item => deepReplacePlatformText(item, platform, skipComparison)) as T;
   }
 
   if (obj && typeof obj === 'object') {
     const result: any = {};
     for (const key of Object.keys(obj)) {
-      result[key] = deepReplacePlatformText((obj as any)[key], platform);
+      // Skip transformation for comparison data rows (preserve platform names in tables)
+      const shouldSkipComparison = key === 'data' && (obj as any).type === 'comparison';
+      const isComparisonRows = key === 'rows' && skipComparison;
+      result[key] = deepReplacePlatformText(
+        (obj as any)[key],
+        platform,
+        shouldSkipComparison || isComparisonRows
+      );
     }
     return result as T;
   }

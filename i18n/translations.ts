@@ -5838,7 +5838,7 @@ def call_mcp_tool(tool_name: str, params: dict):
     officialDocs: {
       title: '공식 문서',
       learningObjectives: [
-        'Anthropic 공식 문서와 리소스의 위치를 파악합니다',
+        '각 플랫폼의 공식 문서와 리소스 위치를 파악합니다',
         '효과적인 문서 탐색 방법을 익힙니다',
         '최신 정보를 지속적으로 업데이트하는 습관을 형성합니다',
       ],
@@ -5846,35 +5846,29 @@ def call_mcp_tool(tool_name: str, params: dict):
         {
           title: '공식 문서',
           blocks: [
-            { type: 'paragraph', content: '처음 스킬을 만든다면 GitHub 리포지토리의 예제를 참고하고, 필요에 따라 API 문서를 참조하세요. Anthropic은 스킬 개발자를 위해 다양한 공식 리소스를 제공하고 있으며, 이를 통해 최신 API 변경사항과 모범 사례를 확인할 수 있습니다.' },
+            { type: 'paragraph', content: '처음 스킬을 만든다면 공식 리포지토리의 예제를 참고하고, 필요에 따라 API 문서를 참조하세요. 각 플랫폼은 스킬 개발자를 위해 다양한 공식 리소스를 제공하고 있으며, 이를 통해 최신 변경사항과 모범 사례를 확인할 수 있습니다.' },
             { type: 'diagram', diagramId: 'resource-map' },
           ],
         },
         {
-          title: 'Anthropic 공식 리소스',
+          title: '플랫폼별 공식 리소스',
           blocks: [
-            { type: 'paragraph', content: 'Anthropic에서 직접 제공하는 핵심 문서들입니다. API 통합, MCP 프로토콜 구현, 그리고 실제 스킬 예제를 찾을 수 있습니다.' },
-            {
-              type: 'items',
-              items: [
-                { label: 'API Reference', desc: 'Claude API 레퍼런스', url: 'https://docs.anthropic.com/en/api' },
-                { label: 'MCP Documentation', desc: 'Model Context Protocol 사양 및 구현 가이드', url: 'https://modelcontextprotocol.io' },
-                { label: 'GitHub Skills Repository', desc: 'Anthropic 공식 스킬 리포지토리 (예제 및 문서)', url: 'https://github.com/anthropics/skills' },
-              ],
-            },
+            { type: 'paragraph', content: '현재 선택된 플랫폼의 공식 문서와 관련 리소스입니다. 플랫폼을 변경하면 해당 플랫폼의 문서가 표시됩니다.' },
+            { type: 'platformDocs' },
+            { type: 'tip', content: '공식 문서는 정기적으로 업데이트됩니다. 중요한 프로젝트를 시작하기 전에 최신 버전을 확인하는 것이 좋습니다.' },
           ],
         },
         {
-          title: '블로그 및 연구',
+          title: '공통 리소스',
           blocks: [
-            { type: 'paragraph', content: 'Anthropic 연구팀에서 발행하는 블로그와 연구 자료입니다. 에이전트 설계 원칙과 효과적인 프롬프트 엔지니어링 기법을 학습할 수 있습니다.' },
+            { type: 'paragraph', content: '모든 플랫폼에서 참고할 수 있는 공통 리소스입니다.' },
             {
               type: 'items',
               items: [
-                { label: 'Building Effective Agents', desc: '효과적인 에이전트 구축 - 연구 블로그', url: 'https://www.anthropic.com/research/building-effective-agents' },
+                { label: 'Agent Skills 오픈 표준', desc: '여러 AI 플랫폼에서 공통으로 사용하는 스킬 표준', url: 'https://agentskills.io' },
+                { label: 'MCP Documentation', desc: 'Model Context Protocol 사양 및 구현 가이드', url: 'https://modelcontextprotocol.io' },
               ],
             },
-            { type: 'tip', content: '공식 문서는 정기적으로 업데이트됩니다. 중요한 프로젝트를 시작하기 전에 최신 버전을 확인하는 것이 좋습니다.' },
           ],
         },
       ],
@@ -5898,11 +5892,12 @@ def call_mcp_tool(tool_name: str, params: dict):
         {
           title: '공식 스킬 리포지토리',
           blocks: [
-            { type: 'paragraph', content: 'GitHub: anthropics/skills — Anthropic이 만든 커스터마이즈 가능한 스킬이 포함되어 있습니다. 이 스킬들은 공식적으로 테스트되었으며, 스킬 개발의 모범 사례를 따르고 있습니다.' },
+            { type: 'paragraph', content: '각 플랫폼은 공식 스킬/규칙 리포지토리를 제공합니다. 위의 "플랫폼별 공식 리소스" 섹션에서 현재 선택된 플랫폼의 공식 리포지토리 링크를 확인하세요.' },
+            { type: 'tip', content: '공식 스킬들은 테스트되었으며, 스킬 개발의 모범 사례를 따르고 있습니다. 처음 시작할 때 이 스킬들을 참고하면 좋습니다.' },
             {
               type: 'items',
               items: [
-                { label: 'Document Skills', desc: 'PDF, DOCX, PPTX, XLSX 생성 스킬' },
+                { label: 'Document Skills', desc: 'PDF, DOCX, PPTX, XLSX 생성 스킬 (플랫폼에 따라 다름)' },
                 { label: 'Example Skills', desc: '다양한 워크플로우 패턴을 보여주는 예제 스킬' },
               ],
             },
@@ -5944,30 +5939,22 @@ def call_mcp_tool(tool_name: str, params: dict):
           ],
         },
         {
-          title: 'skill-creator 스킬',
+          title: '플랫폼별 스킬 생성 도구',
           blocks: [
-            { type: 'paragraph', content: 'skill-creator는 Anthropic이 제공하는 공식 스킬 생성 도구입니다. 자연어로 원하는 기능을 설명하면 스킬 구조를 자동으로 생성해주며, 기존 스킬의 품질을 평가하고 개선 사항을 제안합니다.' },
-            {
-              type: 'items',
-              items: [
-                'Claude.ai와 Claude Code에 내장되어 있음',
-                '자연어 설명에서 스킬을 자동 생성',
-                '기존 스킬을 리뷰하고 개선 사항을 추천',
-                '"Help me build a skill using skill-creator"로 사용',
-              ],
-            },
+            { type: 'paragraph', content: '각 플랫폼은 스킬/규칙을 생성하는 고유한 도구를 제공합니다. 현재 선택된 플랫폼의 상세 사용법을 확인하세요.' },
+            { type: 'platformGuide' },
           ],
         },
         {
           title: '검증 (Validation)',
           blocks: [
-            { type: 'paragraph', content: '스킬을 배포하기 전에 검증 과정을 거치면 런타임 오류와 트리거 문제를 사전에 방지할 수 있습니다. skill-creator의 리뷰 기능을 활용하면 구조적 문제를 빠르게 식별할 수 있습니다.' },
+            { type: 'paragraph', content: '스킬을 배포하기 전에 검증 과정을 거치면 런타임 오류와 트리거 문제를 사전에 방지할 수 있습니다. 플랫폼별 생성 도구의 리뷰 기능을 활용하면 구조적 문제를 빠르게 식별할 수 있습니다.' },
             {
               type: 'items',
               items: [
-                'skill-creator로 스킬을 평가할 수 있음',
-                '"Review this skill and suggest improvements"로 리뷰 요청',
+                '스킬/규칙을 AI에게 리뷰 요청할 수 있음',
                 '구조적 문제, 누락된 트리거, 모호한 description을 식별',
+                '엣지 케이스와 실패 시나리오 검토',
               ],
             },
           ],
@@ -5979,8 +5966,8 @@ def call_mcp_tool(tool_name: str, params: dict):
             {
               type: 'items',
               items: [
-                { label: '기술 질문', desc: 'Claude Developers Discord 커뮤니티 포럼' },
-                { label: '버그 리포트', desc: 'GitHub Issues: anthropics/skills/issues' },
+                { label: '기술 질문', desc: '각 플랫폼의 공식 커뮤니티 포럼 또는 Discord' },
+                { label: '버그 리포트', desc: '각 플랫폼의 공식 GitHub Issues' },
                 { label: '버그 리포트 포함 내용', desc: '스킬명, 에러 메시지, 재현 단계를 포함하세요' },
               ],
             },
@@ -6448,7 +6435,7 @@ jobs:
           blocks: [
             { type: 'paragraph', content: '이 가이드에서 다룬 패턴을 실제로 구현한 프로덕션 레디 스킬들입니다. 공식 리포지토리에서 전체 코드를 확인할 수 있습니다. 각 예제는 실제 업무 환경에서 검증된 패턴을 사용하며, 이를 참고하여 자신만의 스킬을 개발할 수 있습니다.' },
             { type: 'diagram', diagramId: 'example-usage-flow' },
-            { type: 'note', content: '전체 소스 코드는 GitHub anthropics/skills 리포지토리에서 확인할 수 있습니다.' },
+            { type: 'note', content: '전체 소스 코드는 각 플랫폼의 공식 스킬 리포지토리에서 확인할 수 있습니다. 위의 "공식 문서" 섹션에서 플랫폼별 리소스 링크를 확인하세요.' },
           ],
         },
         {
