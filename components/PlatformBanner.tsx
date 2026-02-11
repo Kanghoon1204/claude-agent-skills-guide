@@ -10,6 +10,7 @@ const PlatformBanner: React.FC = () => {
     { id: 'cursor', icon: '🔵', label: 'Cursor' },
     { id: 'codex', icon: '🟢', label: 'Codex' },
     { id: 'windsurf', icon: '🟣', label: 'Windsurf' },
+    { id: 'antigravity', icon: '🔴', label: 'Antigravity' },
   ];
 
   return (

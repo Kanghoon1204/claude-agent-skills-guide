@@ -91,11 +91,35 @@ ${mcpSection}
 `;
 };
 
+const generateAntigravitySkill = (state: WizardState): string => {
+  // Antigravity uses SKILL.md with YAML frontmatter (similar to Claude)
+  // Reference: https://codelabs.developers.google.com/getting-started-with-antigravity-skills
+  const tools = [...state.tools.builtin];
+  const mcpSection = state.tools.mcp.length > 0
+    ? `\nWhen working with external services, use these MCP integrations:\n${state.tools.mcp.map((t) => `- ${t}`).join('\n')}\n`
+    : '';
+
+  return `---
+name: ${state.name}
+description: ${state.description}
+---
+
+# ${state.name}
+
+${state.instructions}
+${mcpSection}
+## Preferred Tools
+
+${tools.map((t) => `- ${t}`).join('\n')}
+`;
+};
+
 const GENERATORS: Record<Platform, (state: WizardState) => string> = {
   claude: generateClaudeYaml,
   cursor: generateCursorRules,
   codex: generateCodexAgents,
   windsurf: generateWindsurfConfig,
+  antigravity: generateAntigravitySkill,
 };
 
 const FILE_NAMES: Record<Platform, string> = {
@@ -103,6 +127,7 @@ const FILE_NAMES: Record<Platform, string> = {
   cursor: '.cursorrules',
   codex: 'AGENTS.md',
   windsurf: '.windsurfrules',
+  antigravity: 'SKILL.md',
 };
 
 const StepReview: React.FC<StepReviewProps> = ({ state, platform }) => {
@@ -238,6 +263,7 @@ const StepReview: React.FC<StepReviewProps> = ({ state, platform }) => {
           <div className="text-sm text-green-800 dark:text-green-200">
             <strong>다음 단계:</strong> 생성된 파일을 프로젝트 루트에 저장하세요.
             {selectedPlatform === 'claude' && ' ~/.claude/skills/ 폴더에 저장하면 전역 스킬로 사용할 수 있습니다.'}
+            {selectedPlatform === 'antigravity' && ' ~/.gemini/antigravity/skills/ 폴더에 저장하면 전역 스킬로 사용할 수 있습니다.'}
           </div>
         </div>
       </div>

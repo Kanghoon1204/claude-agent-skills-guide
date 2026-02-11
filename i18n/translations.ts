@@ -1875,7 +1875,7 @@ class SkillIntegrationTest:
         '플랫폼별 스킬 파일 형식의 차이를 이해합니다',
         '도구 선택과 지시사항 작성을 실습합니다',
       ],
-      body: '이론을 배웠으니 이제 직접 스킬을 만들어볼 차례입니다! 아래 위저드를 사용하면 단계별로 스킬을 구성하고, 완성된 YAML 파일을 바로 복사할 수 있습니다.\n\n현재 선택된 플랫폼에 맞는 형식으로 스킬 파일이 생성됩니다. Claude Code, Cursor, Codex, Windsurf 등 다양한 플랫폼을 지원합니다.',
+      body: '이론을 배웠으니 이제 직접 스킬을 만들어볼 차례입니다! 아래 위저드를 사용하면 단계별로 스킬을 구성하고, 완성된 YAML 파일을 바로 복사할 수 있습니다.\n\n현재 선택된 플랫폼에 맞는 형식으로 스킬 파일이 생성됩니다. Claude Code, Cursor, Codex, Windsurf, Antigravity 등 다양한 플랫폼을 지원합니다.',
       subsections: [
         {
           title: '스킬 생성기',
